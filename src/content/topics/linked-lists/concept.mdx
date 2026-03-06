@@ -1,0 +1,104 @@
+# Linked Lists
+
+## What is a Linked List?
+
+A **linked list** is a linear data structure where elements are stored in **nodes**. Unlike arrays, nodes are not stored in contiguous memory locations — each node holds a value and a **pointer (reference)** to the next node in the sequence.
+
+```
+[10 | →] → [20 | →] → [30 | null]
+  head                    tail
+```
+
+This makes linked lists dynamic — they can grow or shrink at runtime without needing to shift elements like an array would.
+
+---
+
+## Node Structure
+
+Every linked list is built from **nodes**. A singly linked list node contains:
+- `value` — the data stored in the node
+- `next` — a reference to the next node (or `null` if it's the last node)
+
+```javascript
+class Node {
+  constructor(value) {
+    this.value = value;
+    this.next = null;
+  }
+}
+```
+
+---
+
+## Singly Linked List
+
+In a **singly linked list**, each node points only **forward** to the next node. Traversal is one-directional (head → tail).
+
+```
+head → [1 | →] → [2 | →] → [3 | null]
+```
+
+**Key operations:**
+- **Insert at Head** — O(1): create node, point it to current head, update head
+- **Insert at Tail** — O(n): traverse to end, then append
+- **Delete** — O(n): traverse to find node, re-link predecessor's `next`
+- **Search** — O(n): traverse until value found
+
+---
+
+## Doubly Linked List
+
+A **doubly linked list** adds a `prev` pointer so each node points in **both directions**.
+
+```
+null ← [1 | ↔] ↔ [2 | ↔] ↔ [3 | null]
+       head                    tail
+```
+
+**Advantages over singly:**
+- Can traverse backwards
+- Delete is O(1) if you have a reference to the node (no need to find the predecessor)
+
+**Trade-off:** Uses more memory (two pointers per node instead of one)
+
+---
+
+## Circular Linked List
+
+A **circular linked list** is a variant where the last node's `next` points **back to the head** instead of `null`.
+
+```
+→ [1 | →] → [2 | →] → [3 | →] ↩
+```
+
+**Use cases:** Round-robin schedulers, music playlist loops, buffering.
+
+---
+
+## Time Complexity
+
+| Operation      | Singly LL | Doubly LL | Array   |
+|---------------|-----------|-----------|---------|
+| Insert Head   | O(1)      | O(1)      | O(n)    |
+| Insert Tail   | O(n)*     | O(n)*     | O(1)**  |
+| Delete (search) | O(n)    | O(n)      | O(n)    |
+| Delete (by ref) | O(n)    | O(1)      | O(n)    |
+| Search        | O(n)      | O(n)      | O(n)    |
+| Access by index | O(n)   | O(n)      | O(1)    |
+
+*O(1) if a `tail` pointer is maintained
+**Amortized O(1) with dynamic arrays
+
+---
+
+## When to Use a Linked List
+
+**Use a linked list when:**
+- You need frequent insertions/deletions at the beginning
+- You don't need random access by index
+- The size of the data changes frequently
+
+**Prefer an array when:**
+- You need fast index-based access
+- Memory locality matters (cache performance)
+- The size is relatively stable
