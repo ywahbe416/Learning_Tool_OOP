@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
-import type { Challenge, TestCase } from "@/content/topics/linked-lists/challenge";
+import type { Challenge, TestCase } from "@/types/challenge";
 import { markChallengeComplete } from "@/lib/progress";
 
 interface TestResult {

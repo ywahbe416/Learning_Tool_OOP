@@ -1,0 +1,263 @@
+# Algorithms
+
+## Big-O Notation
+
+**Big-O** describes how an algorithm's time (or space) grows as input size `n` grows. We keep the **largest term** and drop constants — we care about the shape, not the exact number.
+
+```
+O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ)
+fastest                                          slowest
+```
+
+| Complexity | Name | Example |
+|---|---|---|
+| O(1) | Constant | Array access, HashMap get |
+| O(log n) | Logarithmic | Binary search, BST operations |
+| O(n) | Linear | Linear search, single loop |
+| O(n log n) | Linearithmic | Merge sort, heap sort |
+| O(n²) | Quadratic | Bubble sort, nested loops |
+| O(2ⁿ) | Exponential | Naive Fibonacci, subsets |
+
+**Rule:** Always analyze the **worst case** unless specified otherwise.
+
+```javascript
+// O(1) — constant time regardless of array size
+function getFirst(arr) { return arr[0]; }
+
+// O(n) — grows linearly with input
+function findMax(arr) {
+  let max = arr[0];
+  for (const x of arr) if (x > max) max = x;
+  return max;
+}
+
+// O(n²) — nested loops
+function hasDuplicate(arr) {
+  for (let i = 0; i < arr.length; i++)
+    for (let j = i + 1; j < arr.length; j++)
+      if (arr[i] === arr[j]) return true;
+  return false;
+}
+```
+
+---
+
+## Search
+
+### Linear Search — O(n)
+Check each element one by one. Works on any array (sorted or unsorted).
+
+```javascript
+function linearSearch(arr, target) {
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === target) return i;
+  }
+  return -1;
+}
+```
+
+### Binary Search — O(log n)
+Only works on a **sorted** array. Halve the search space at each step.
+
+```javascript
+function binarySearch(arr, target) {
+  let low = 0, high = arr.length - 1;
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    if (arr[mid] === target) return mid;
+    if (arr[mid] < target) low = mid + 1;
+    else high = mid - 1;
+  }
+  return -1;
+}
+```
+
+Searching 1,000,000 elements: linear = up to 1,000,000 checks; binary = at most 20.
+
+---
+
+## Sorting
+
+| Algorithm | Best | Average | Worst | Space | Stable? |
+|---|---|---|---|---|---|
+| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Yes |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes |
+| Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | No |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes |
+| Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |
+
+**Merge Sort** — divide, sort each half, merge. Guaranteed O(n log n). Good for linked lists.
+
+```javascript
+function mergeSort(arr) {
+  if (arr.length <= 1) return arr;
+  const mid = Math.floor(arr.length / 2);
+  const left = mergeSort(arr.slice(0, mid));
+  const right = mergeSort(arr.slice(mid));
+  return merge(left, right);
+}
+
+function merge(left, right) {
+  const result = [];
+  let i = 0, j = 0;
+  while (i < left.length && j < right.length) {
+    if (left[i] <= right[j]) result.push(left[i++]);
+    else result.push(right[j++]);
+  }
+  return [...result, ...left.slice(i), ...right.slice(j)];
+}
+```
+
+---
+
+## Two Pointers
+
+Use **two indices** that move toward each other (or in the same direction) to solve problems in O(n) instead of O(n²).
+
+**Classic: Two Sum II** (sorted array, find pair that equals target)
+
+```javascript
+function twoSumSorted(arr, target) {
+  let left = 0, right = arr.length - 1;
+  while (left < right) {
+    const sum = arr[left] + arr[right];
+    if (sum === target) return [left, right];
+    if (sum < target) left++;   // need bigger sum
+    else right--;               // need smaller sum
+  }
+  return [];
+}
+
+twoSumSorted([1, 2, 3, 4, 6], 6); // [1, 3] (indices of 2 and 4)
+```
+
+Two pointers requires a **sorted array**. Without sorting, use hashing for O(n).
+
+---
+
+## Sliding Window
+
+Maintain a **window** (subarray/substring) that slides over the input. Avoids recomputing from scratch at each position — O(n) instead of O(n²).
+
+**Classic: Maximum sum subarray of size k**
+
+```javascript
+function maxSubarraySum(arr, k) {
+  let windowSum = arr.slice(0, k).reduce((a, b) => a + b, 0);
+  let maxSum = windowSum;
+
+  for (let i = k; i < arr.length; i++) {
+    windowSum += arr[i] - arr[i - k]; // slide: add new, remove old
+    maxSum = Math.max(maxSum, windowSum);
+  }
+  return maxSum;
+}
+
+maxSubarraySum([2, 1, 5, 1, 3, 2], 3); // 9 (5+1+3)
+```
+
+---
+
+## Hashing
+
+Use a **Map/object** to achieve O(1) lookup and eliminate nested loops.
+
+**Classic: Two Sum** (unsorted, find indices of pair that sums to target)
+
+```javascript
+function twoSum(nums, target) {
+  const seen = new Map(); // value → index
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    if (seen.has(complement)) {
+      return [seen.get(complement), i];
+    }
+    seen.set(nums[i], i);
+  }
+  return [];
+}
+
+twoSum([2, 7, 11, 15], 9); // [0, 1]
+```
+
+**Other hashing patterns:**
+- **Frequency count:** `map.set(x, (map.get(x) ?? 0) + 1)`
+- **Seen set:** `const seen = new Set()` for cycle detection
+- **Grouping:** `map.get(key) ?? map.set(key, []).get(key)` then push
+
+---
+
+## Backtracking
+
+Systematically **explore all possibilities** by choosing, exploring, then **un-choosing** (backtracking). Used for permutations, subsets, and constraint satisfaction.
+
+```
+Pattern: choose → explore → unchoose
+```
+
+**Classic: Generate all subsets**
+
+```javascript
+function subsets(nums) {
+  const result = [];
+
+  function backtrack(start, current) {
+    result.push([...current]);           // record current subset
+    for (let i = start; i < nums.length; i++) {
+      current.push(nums[i]);             // choose
+      backtrack(i + 1, current);         // explore
+      current.pop();                     // unchoose
+    }
+  }
+
+  backtrack(0, []);
+  return result;
+}
+
+subsets([1, 2, 3]);
+// [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
+```
+
+---
+
+## Dynamic Programming
+
+**Memoize** (cache) the results of overlapping subproblems to avoid recomputation. Transforms exponential recursion into polynomial time.
+
+**Two approaches:**
+1. **Top-down (memoization):** Recursive + cache
+2. **Bottom-up (tabulation):** Build solution iteratively from base cases
+
+**Classic: Fibonacci with memoization**
+
+```javascript
+// Without DP: O(2ⁿ)
+// With DP: O(n)
+function fib(n, memo = new Map()) {
+  if (n <= 1) return n;
+  if (memo.has(n)) return memo.get(n);
+  const result = fib(n - 1, memo) + fib(n - 2, memo);
+  memo.set(n, result);
+  return result;
+}
+```
+
+**Classic: Climbing stairs** (1D DP table)
+
+```javascript
+// How many ways to climb n stairs, taking 1 or 2 steps at a time?
+function climbStairs(n) {
+  const dp = [0, 1, 2];
+  for (let i = 3; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2]; // same recurrence as Fibonacci
+  }
+  return dp[n];
+}
+
+climbStairs(5); // 8
+```
+
+**Recognize DP when:**
+- Problem has overlapping subproblems
+- Optimal solution depends on optimal solutions to smaller subproblems
+- Keywords: "minimum/maximum ways", "count paths", "longest/shortest"

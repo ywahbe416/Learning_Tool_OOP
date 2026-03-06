@@ -4,8 +4,8 @@ export const meta = {
   subtitle: "Singly, Doubly & Circular",
   description:
     "Understand how nodes chain together with pointers to form dynamic data structures.",
-  difficulty: "beginner" as const,
+  difficulty: "intermediate" as const,
   tags: ["nodes", "pointers", "dynamic"],
-  order: 1,
+  order: 6,
   status: "available" as const,
 };

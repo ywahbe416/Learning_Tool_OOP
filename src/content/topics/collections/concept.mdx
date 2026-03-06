@@ -1,0 +1,153 @@
+# Collections
+
+## What is a Collection?
+
+A **collection** is an object that **groups multiple elements** into a single unit. In Java, this is the **Java Collection Framework (JCF)** — a set of standardized interfaces and classes for storing and manipulating groups of objects.
+
+In JavaScript, the equivalent built-in types are `Array`, `Set`, and `Map`.
+
+---
+
+## The Collection Hierarchy
+
+Java's hierarchy:
+
+```
+Collection (interface)
+├── List     → ordered, allows duplicates → ArrayList, LinkedList
+├── Set      → unordered, no duplicates   → HashSet, TreeSet
+└── Queue    → FIFO ordering              → LinkedList, PriorityQueue
+
+Map (separate — not a Collection)
+└── key-value pairs, no duplicate keys   → HashMap, TreeMap
+```
+
+JavaScript equivalents:
+
+| Java | JavaScript | Characteristic |
+|---|---|---|
+| `ArrayList` | `Array` | Ordered, duplicates allowed |
+| `HashSet` | `Set` | Unique values only |
+| `HashMap` | `Map` | Key-value pairs |
+| `LinkedList` | Custom / `Array` | Linked node structure |
+
+---
+
+## Collections Class
+
+In Java, `Collections` (with an 's') is a **utility class** with static methods for operating on collections. JavaScript has similar functionality built into `Array`.
+
+| Java (`Collections.*`) | JavaScript (`Array.*`) |
+|---|---|
+| `Collections.sort(list)` | `arr.sort(compareFn)` |
+| `Collections.reverse(list)` | `arr.reverse()` |
+| `Collections.binarySearch(list, key)` | custom implementation |
+| `Collections.min(list)` | `Math.min(...arr)` |
+| `Collections.max(list)` | `Math.max(...arr)` |
+| `Collections.frequency(list, val)` | `arr.filter(x => x === val).length` |
+
+```javascript
+const nums = [3, 1, 4, 1, 5, 9, 2, 6];
+nums.sort((a, b) => a - b);    // [1, 1, 2, 3, 4, 5, 6, 9]
+nums.reverse();                 // [9, 6, 5, 4, 3, 2, 1, 1]
+```
+
+---
+
+## Comparable
+
+In Java, the `Comparable<T>` interface defines the **natural ordering** of a class. Implement it when you want objects of your class to be sortable.
+
+```java
+// Java — implement Comparable
+class Student implements Comparable<Student> {
+    String name;
+    double gpa;
+
+    public int compareTo(Student other) {
+        return Double.compare(other.gpa, this.gpa); // descending by GPA
+    }
+}
+```
+
+In JavaScript, there's no interface — you pass a **comparator function** directly to `.sort()`.
+
+```javascript
+class Student {
+  constructor(name, gpa) {
+    this.name = name;
+    this.gpa = gpa;
+  }
+}
+
+const students = [
+  new Student("Alice", 3.2),
+  new Student("Bob", 3.8),
+  new Student("Carol", 3.5),
+];
+
+// Sort descending by GPA (like implementing Comparable)
+students.sort((a, b) => b.gpa - a.gpa);
+// Bob (3.8), Carol (3.5), Alice (3.2)
+```
+
+---
+
+## compareTo()
+
+`compareTo()` returns a number that determines order:
+
+| Return value | Meaning |
+|---|---|
+| `< 0` (negative) | `this` comes **before** `other` |
+| `0` | They are **equal** |
+| `> 0` (positive) | `this` comes **after** `other` |
+
+**Rules by type:**
+
+| Type | How to implement |
+|---|---|
+| `int` / `double` | Subtract: `this.val - other.val` (ascending) |
+| `String` | Delegate to `.localeCompare()` in JS |
+| Multi-field | Primary sort first; use secondary as tiebreaker |
+
+```javascript
+// Multi-field sort: GPA descending, then name ascending
+students.sort((a, b) => {
+  if (b.gpa !== a.gpa) return b.gpa - a.gpa;     // primary: GPA desc
+  return a.name.localeCompare(b.name);            // tiebreaker: name asc
+});
+```
+
+---
+
+## sort()
+
+`Collections.sort(list)` in Java calls `compareTo()` on your objects. JavaScript's `arr.sort(fn)` works identically with a comparator.
+
+```javascript
+// Without comparator — sorts as strings! (wrong for numbers)
+[10, 2, 20, 1].sort();           // [1, 10, 2, 20] ← WRONG
+
+// With comparator — sorts numerically
+[10, 2, 20, 1].sort((a, b) => a - b);  // [1, 2, 10, 20] ← CORRECT
+```
+
+**Common sort patterns:**
+
+```javascript
+const people = [
+  { name: "Alice", age: 30 },
+  { name: "Bob", age: 25 },
+  { name: "Carol", age: 30 },
+];
+
+// Sort by age ascending, then name ascending
+people.sort((a, b) => {
+  if (a.age !== b.age) return a.age - b.age;
+  return a.name.localeCompare(b.name);
+});
+// Bob(25), Alice(30), Carol(30)
+```
+
+**Note:** `Array.sort()` in JavaScript sorts **in-place** and returns the same array. Java's `Collections.sort()` also sorts in-place.

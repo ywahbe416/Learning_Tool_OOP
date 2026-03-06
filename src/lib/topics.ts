@@ -1,4 +1,11 @@
+import { meta as oopBasicsMeta } from "@/content/topics/oop-basics/meta";
+import { meta as advancedOopMeta } from "@/content/topics/advanced-oop/meta";
+import { meta as exceptionsMeta } from "@/content/topics/exceptions/meta";
+import { meta as recursionMeta } from "@/content/topics/recursion/meta";
+import { meta as collectionsMeta } from "@/content/topics/collections/meta";
 import { meta as linkedListsMeta } from "@/content/topics/linked-lists/meta";
+import { meta as dataStructuresMeta } from "@/content/topics/data-structures/meta";
+import { meta as algorithmsMeta } from "@/content/topics/algorithms/meta";
 
 export type Difficulty = "beginner" | "intermediate" | "advanced";
 export type TopicStatus = "available" | "coming-soon";
@@ -15,15 +22,14 @@ export interface TopicMeta {
 }
 
 export const topics: TopicMeta[] = [
+  oopBasicsMeta,
+  advancedOopMeta,
+  exceptionsMeta,
+  recursionMeta,
+  collectionsMeta,
   linkedListsMeta,
-  // Future topics will be added here as one import + one array entry:
-  // arraysMeta,
-  // stacksQueuesMeta,
-  // treesMeta,
-  // hashmapsMeta,
-  // graphsMeta,
-  // oopConceptsMeta,
-  // sortingSearchingMeta,
+  dataStructuresMeta,
+  algorithmsMeta,
 ];
 
 export function getTopicBySlug(slug: string): TopicMeta | undefined {

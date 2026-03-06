@@ -1,15 +1,4 @@
-export interface TestCase {
-  description: string;
-  runnerCode: string;
-  expected: unknown;
-}
-
-export interface Challenge {
-  title: string;
-  description: string;
-  starterCode: string;
-  testCases: TestCase[];
-}
+import type { Challenge } from "@/types/challenge";
 
 export const challenge: Challenge = {
   title: "Implement a Singly Linked List",
@@ -51,7 +40,6 @@ class LinkedList {
   testCases: [
     {
       description: "insertAtHead adds node to front",
-      expected: [3, 2, 1],
       runnerCode: `
 const list = new LinkedList();
 list.insertAtHead(1);
@@ -62,7 +50,6 @@ return JSON.stringify(list.toArray()) === JSON.stringify([3, 2, 1]);
     },
     {
       description: "insertAtTail adds node to back",
-      expected: [1, 2, 3],
       runnerCode: `
 const list = new LinkedList();
 list.insertAtTail(1);
@@ -73,7 +60,6 @@ return JSON.stringify(list.toArray()) === JSON.stringify([1, 2, 3]);
     },
     {
       description: "delete removes middle node",
-      expected: [1, 3],
       runnerCode: `
 const list = new LinkedList();
 list.insertAtTail(1);
@@ -85,7 +71,6 @@ return JSON.stringify(list.toArray()) === JSON.stringify([1, 3]);
     },
     {
       description: "delete removes head node",
-      expected: [2, 3],
       runnerCode: `
 const list = new LinkedList();
 list.insertAtTail(1);
@@ -97,7 +82,6 @@ return JSON.stringify(list.toArray()) === JSON.stringify([2, 3]);
     },
     {
       description: "size tracks correctly after inserts",
-      expected: 3,
       runnerCode: `
 const list = new LinkedList();
 list.insertAtHead(1);

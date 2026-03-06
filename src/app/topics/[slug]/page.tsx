@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import { getTopicBySlug, topics } from "@/lib/topics";
+import { challengeRegistry } from "@/lib/challenges";
 import { readFile } from "fs/promises";
 import path from "path";
 import ConceptSection from "@/components/topic/ConceptSection";
 import LinkedListViz from "@/visualizations/linked-list/LinkedListViz";
 import ChallengePanel from "@/components/topic/ChallengePanel";
-import { challenge as linkedListChallenge } from "@/content/topics/linked-lists/challenge";
 
 export async function generateStaticParams() {
   return topics
@@ -31,7 +31,6 @@ export default async function TopicPage({ params }: Props) {
     notFound();
   }
 
-  // Load MDX content
   const mdxPath = path.join(
     process.cwd(),
     "src/content/topics",
@@ -40,14 +39,17 @@ export default async function TopicPage({ params }: Props) {
   );
   const mdxSource = await readFile(mdxPath, "utf-8");
 
-  // Resolve visualization and challenge for this topic
-  const isLinkedLists = slug === "linked-lists";
+  const challenge = challengeRegistry[slug] ?? null;
+  const hasVisualization = slug === "linked-lists";
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
       {/* Header */}
       <div className="mb-8">
-        <a href="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors mb-4 inline-block">
+        <a
+          href="/"
+          className="text-slate-500 hover:text-slate-300 text-sm transition-colors mb-4 inline-block"
+        >
           ← All Topics
         </a>
         <div className="flex items-center gap-3 mb-2">
@@ -61,7 +63,7 @@ export default async function TopicPage({ params }: Props) {
         <p className="text-slate-400">{topic.subtitle}</p>
       </div>
 
-      {/* Layout: concept + viz+challenge */}
+      {/* Layout */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
         {/* Left: Concept */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
@@ -70,9 +72,9 @@ export default async function TopicPage({ params }: Props) {
 
         {/* Right: Visualization + Challenge */}
         <div className="flex flex-col gap-6">
-          {isLinkedLists && <LinkedListViz />}
-          {isLinkedLists && (
-            <ChallengePanel challenge={linkedListChallenge} topicSlug={slug} />
+          {hasVisualization && <LinkedListViz />}
+          {challenge && (
+            <ChallengePanel challenge={challenge} topicSlug={slug} />
           )}
         </div>
       </div>

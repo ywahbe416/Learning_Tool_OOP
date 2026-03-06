@@ -1,0 +1,230 @@
+# Advanced OOP
+
+## Inheritance
+
+**Inheritance** is a mechanism where a **child class** derives attributes and methods from a **parent class** using the `extends` keyword. The child gets everything the parent has, and can add its own on top.
+
+```javascript
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+
+  speak() {
+    return `${this.name} makes a sound.`;
+  }
+}
+
+class Dog extends Animal {
+  constructor(name, breed) {
+    super(name); // MUST call super() first
+    this.breed = breed;
+  }
+
+  fetch(item) {
+    return `${this.name} fetches the ${item}!`;
+  }
+}
+
+const dog = new Dog("Rex", "Labrador");
+dog.speak();        // inherited: "Rex makes a sound."
+dog.fetch("ball");  // own method: "Rex fetches the ball!"
+```
+
+**Key rules:**
+- Use `super(args)` to call the parent constructor
+- A child class IS-A parent class (`Dog` IS-A `Animal`)
+- A child can access all public/protected members of the parent
+
+---
+
+## protected
+
+In Java, `protected` is an access modifier that allows:
+- The class itself
+- All **child classes** (subclasses)
+- Classes in the **same package**
+
+...to access a field or method, while blocking everything else.
+
+```
+Access levels (most → least restrictive):
+private < (default/package) < protected < public
+```
+
+JavaScript doesn't have `protected` built-in. The convention is a single underscore prefix `_fieldName` to signal "intended for internal/subclass use only." The `#` prefix makes it truly private.
+
+```javascript
+class Shape {
+  constructor(color) {
+    this._color = color; // "protected" by convention
+  }
+}
+
+class Circle extends Shape {
+  area() {
+    // Can access _color because it's "protected"
+    return `A ${this._color} circle`;
+  }
+}
+```
+
+---
+
+## Polymorphism
+
+**Polymorphism** means "one interface, many forms." There are two types:
+
+### Method Overriding (Runtime Polymorphism)
+A child class provides its own implementation of a method inherited from the parent. The correct version is selected **at runtime** based on the actual object type.
+
+```javascript
+class Animal {
+  speak() { return "..."; }
+}
+
+class Dog extends Animal {
+  speak() { return "Woof!"; }  // overrides parent
+}
+
+class Cat extends Animal {
+  speak() { return "Meow!"; }  // overrides parent
+}
+
+const animals = [new Dog(), new Cat(), new Animal()];
+animals.forEach(a => console.log(a.speak()));
+// "Woof!"
+// "Meow!"
+// "..."
+```
+
+### Method Overloading (Compile-time Polymorphism)
+Same method name, different parameter lists. Java supports this natively. JavaScript handles it through default parameters or checking argument types.
+
+```javascript
+class Calculator {
+  add(a, b, c = 0) {  // simulate overloading with default param
+    return a + b + c;
+  }
+}
+
+const calc = new Calculator();
+calc.add(1, 2);     // 3
+calc.add(1, 2, 3);  // 6
+```
+
+---
+
+## Composition
+
+**Composition** is a HAS-A relationship — an object **contains** another object as a field. This is an alternative to inheritance for code reuse.
+
+```javascript
+class Engine {
+  constructor(horsepower) {
+    this.horsepower = horsepower;
+  }
+  start() { return "Vroom!"; }
+}
+
+class Car {
+  constructor(make, horsepower) {
+    this.make = make;
+    this.engine = new Engine(horsepower); // Car HAS-A Engine
+  }
+
+  start() {
+    return `${this.make}: ${this.engine.start()}`;
+  }
+}
+
+const car = new Car("Toyota", 200);
+car.start(); // "Toyota: Vroom!"
+```
+
+**Inheritance vs Composition:**
+| | Inheritance (IS-A) | Composition (HAS-A) |
+|---|---|---|
+| Example | Dog IS-A Animal | Car HAS-A Engine |
+| Coupling | Tight | Loose |
+| Flexibility | Lower | Higher |
+| Rule of thumb | Use when true IS-A exists | Prefer in most other cases |
+
+---
+
+## Abstract Class
+
+An **abstract class** is a base class that **cannot be instantiated directly** — it exists only to be extended. It can contain abstract methods (declared but not implemented) that subclasses must override.
+
+JavaScript doesn't have a native `abstract` keyword, but the pattern is enforced by throwing errors:
+
+```javascript
+class Shape {
+  constructor(color) {
+    if (new.target === Shape) {
+      throw new Error("Cannot instantiate abstract class Shape");
+    }
+    this.color = color;
+  }
+
+  // Abstract method — subclasses must implement
+  area() {
+    throw new Error("area() must be implemented");
+  }
+
+  toString() {
+    return `${this.color} shape with area ${this.area().toFixed(2)}`;
+  }
+}
+
+class Circle extends Shape {
+  constructor(color, radius) {
+    super(color);
+    this.radius = radius;
+  }
+
+  area() {
+    return Math.PI * this.radius ** 2; // concrete implementation
+  }
+}
+
+// new Shape("red");  // throws — can't instantiate abstract
+const c = new Circle("red", 5);
+c.area(); // 78.54
+```
+
+---
+
+## The Object Class
+
+In Java, **every class implicitly extends `Object`** — it is the ultimate parent of all Java classes. This means every object automatically inherits:
+
+- `toString()` — string representation (override this!)
+- `equals(other)` — reference equality by default (override for value equality)
+- `hashCode()` — used in HashMaps/HashSets
+
+In JavaScript, `Object` is the root of the prototype chain — all objects inherit from `Object.prototype` and get methods like `toString()`, `hasOwnProperty()`, etc.
+
+```javascript
+class Point {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  // Override toString (inherited from Object)
+  toString() {
+    return `(${this.x}, ${this.y})`;
+  }
+
+  // Override equals (in JS, implement as a method)
+  equals(other) {
+    return other instanceof Point && this.x === other.x && this.y === other.y;
+  }
+}
+
+const p1 = new Point(1, 2);
+const p2 = new Point(1, 2);
+p1.equals(p2);  // true (value equality)
+p1 === p2;      // false (reference equality)
+```
