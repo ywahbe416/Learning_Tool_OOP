@@ -1,0 +1,176 @@
+# Exception Handling
+
+## What is an Exception?
+
+An **exception** is an event that disrupts the normal flow of a program — a runtime error. Without handling, it crashes the program. With handling, you can recover gracefully.
+
+```javascript
+// Without handling — program crashes:
+const arr = [1, 2, 3];
+arr[10].toString(); // TypeError: Cannot read properties of undefined
+
+// With handling — program continues:
+try {
+  arr[10].toString();
+} catch (e) {
+  console.log("Caught:", e.message);
+  // program keeps running
+}
+```
+
+---
+
+## try / catch
+
+Wrap **risky code** in `try`. If an exception occurs, execution jumps to the `catch` block. The `catch` block receives the error object.
+
+```javascript
+function divide(a, b) {
+  if (b === 0) throw new Error("Cannot divide by zero");
+  return a / b;
+}
+
+try {
+  const result = divide(10, 0);
+  console.log(result); // skipped
+} catch (error) {
+  console.log("Error:", error.message); // "Error: Cannot divide by zero"
+}
+
+console.log("Program continues..."); // still runs
+```
+
+**Rule:** Only put code in `try` that might throw. Keep `try` blocks small and focused.
+
+---
+
+## finally
+
+The `finally` block **always runs** — whether an exception was thrown or not, whether it was caught or not. Use it for cleanup: closing files, releasing resources, etc.
+
+```javascript
+function readData(source) {
+  let connection = null;
+  try {
+    connection = openConnection(source);
+    return connection.read();
+  } catch (error) {
+    console.log("Read failed:", error.message);
+    return null;
+  } finally {
+    // This ALWAYS runs — guaranteed cleanup
+    if (connection) connection.close();
+    console.log("Connection closed.");
+  }
+}
+```
+
+`finally` runs even if the `catch` block re-throws an error, or if there's a `return` inside `try`.
+
+---
+
+## throw
+
+Use `throw` to **manually trigger an exception** when you detect an invalid state. You can throw any value, but best practice is to throw an `Error` (or subclass).
+
+```javascript
+function setAge(age) {
+  if (typeof age !== "number") throw new TypeError("Age must be a number");
+  if (age < 0 || age > 150) throw new RangeError("Age must be 0–150");
+  this.age = age;
+}
+
+try {
+  setAge(-5);
+} catch (e) {
+  console.log(e.name);    // "RangeError"
+  console.log(e.message); // "Age must be 0–150"
+}
+```
+
+---
+
+## throws (Java)
+
+In Java, the `throws` keyword in a method signature **declares** that the method might throw a checked exception. Callers are then forced by the compiler to handle it.
+
+```java
+// Java only — declares that IOException might be thrown
+public void readFile(String path) throws IOException {
+    FileReader f = new FileReader(path); // might throw
+}
+```
+
+JavaScript has no equivalent — all exceptions are unchecked. But documenting in JSDoc is good practice:
+
+```javascript
+/**
+ * @throws {Error} if the file cannot be read
+ */
+function readFile(path) { ... }
+```
+
+---
+
+## Checked vs Unchecked Exceptions
+
+**Java** distinguishes between two categories:
+
+| | Checked | Unchecked |
+|---|---|---|
+| Compiler forces handling? | Yes | No |
+| Examples | `IOException`, `SQLException` | `NullPointerException`, `ArrayIndexOutOfBoundsException` |
+| Must catch or declare `throws`? | Yes | No |
+| Typical cause | External resource failure | Programming bug |
+
+**JavaScript** has only **unchecked** exceptions — the compiler never forces you to handle anything. Common built-in error types:
+- `Error` — base type
+- `TypeError` — wrong type
+- `RangeError` — value out of range
+- `ReferenceError` — undefined variable
+
+---
+
+## Custom Exceptions
+
+Extend the `Error` class (or `Exception` in Java) to create your own error types. This lets callers catch specific categories of errors.
+
+```javascript
+class InsufficientFundsError extends Error {
+  constructor(amount, balance) {
+    super(`Cannot withdraw ${amount}. Balance is only ${balance}.`);
+    this.name = "InsufficientFundsError";
+    this.amount = amount;
+    this.balance = balance;
+  }
+}
+
+class BankAccount {
+  constructor(balance) { this.balance = balance; }
+
+  withdraw(amount) {
+    if (amount > this.balance) {
+      throw new InsufficientFundsError(amount, this.balance);
+    }
+    this.balance -= amount;
+  }
+}
+
+try {
+  const acct = new BankAccount(100);
+  acct.withdraw(200);
+} catch (e) {
+  if (e instanceof InsufficientFundsError) {
+    console.log("Custom error caught:", e.message);
+    console.log("Short by:", e.amount - e.balance);
+  } else {
+    throw e; // re-throw unexpected errors
+  }
+}
+```
+
+**Best practices:**
+- Always set `this.name` in the constructor
+- Include relevant context data as fields
+- Catch specific types before generic `Error`
+- Re-throw errors you didn't expect
