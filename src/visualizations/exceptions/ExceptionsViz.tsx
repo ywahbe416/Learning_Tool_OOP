@@ -180,7 +180,7 @@ export default function ExceptionsViz() {
                 {state === "throwing" && (
                   <div className="pl-4 text-rose-400 font-bold">{"throw e; // exception!"}</div>
                 )}
-                <span className={isActive ? block.color : "text-slate-500">{"}"}</span>
+                <span className={isActive ? block.color : "text-slate-500"}>{"}"}</span>
               </div>
             );
           })}
