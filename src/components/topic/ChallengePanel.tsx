@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Editor from "@monaco-editor/react";
-import type { Challenge, TestCase } from "@/types/challenge";
+import type { Challenge } from "@/types/challenge";
 import { markChallengeComplete } from "@/lib/progress";
 
 interface TestResult {
@@ -19,28 +19,46 @@ interface Props {
 export default function ChallengePanel({ challenge, topicSlug }: Props) {
   const [code, setCode] = useState(challenge.starterCode);
   const [results, setResults] = useState<TestResult[] | null>(null);
+  const [compileError, setCompileError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
 
-  const runTests = useCallback(() => {
+  const runTests = useCallback(async () => {
     setRunning(true);
-    const out: TestResult[] = challenge.testCases.map((tc: TestCase) => {
-      try {
-        // eslint-disable-next-line no-new-func
-        const fn = new Function(code + "\n" + tc.runnerCode);
-        const pass = fn() === true;
-        return { description: tc.description, pass };
-      } catch (e: unknown) {
-        return {
-          description: tc.description,
-          pass: false,
-          error: e instanceof Error ? e.message : String(e),
-        };
+    setCompileError(null);
+    setResults(null);
+
+    try {
+      const res = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userCode: code,
+          wrapperCodes: challenge.testCases.map((tc) => tc.wrapperCode),
+          descriptions: challenge.testCases.map((tc) => tc.description),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        setCompileError(data.error);
+        return;
       }
-    });
-    setResults(out);
-    setRunning(false);
-    if (out.every((r) => r.pass)) {
-      markChallengeComplete(topicSlug);
+
+      if (data.compileError) {
+        setCompileError(data.compileError);
+        return;
+      }
+
+      const out: TestResult[] = data.results;
+      setResults(out);
+      if (out.every((r) => r.pass)) {
+        markChallengeComplete(topicSlug);
+      }
+    } catch {
+      setCompileError("Network error — could not reach the code runner.");
+    } finally {
+      setRunning(false);
     }
   }, [code, challenge, topicSlug]);
 
@@ -54,10 +72,10 @@ export default function ChallengePanel({ challenge, topicSlug }: Props) {
         <p className="text-slate-400 text-sm mt-1">{challenge.description}</p>
       </div>
 
-      <div className="h-[380px]">
+      <div className="h-[420px]">
         <Editor
-          height="380px"
-          defaultLanguage="javascript"
+          height="420px"
+          defaultLanguage="java"
           theme="vs-dark"
           value={code}
           onChange={(val) => setCode(val ?? "")}
@@ -67,7 +85,7 @@ export default function ChallengePanel({ challenge, topicSlug }: Props) {
             lineNumbers: "on",
             scrollBeyondLastLine: false,
             wordWrap: "on",
-            tabSize: 2,
+            tabSize: 4,
           }}
         />
       </div>
@@ -89,6 +107,13 @@ export default function ChallengePanel({ challenge, topicSlug }: Props) {
           <span className="text-emerald-400 font-bold text-sm">All tests passed!</span>
         )}
       </div>
+
+      {compileError && (
+        <div className="mx-6 mb-4 p-4 bg-rose-950 border border-rose-700 rounded-lg">
+          <p className="text-rose-300 text-xs font-semibold mb-1">Compile Error</p>
+          <pre className="text-rose-200 text-xs font-mono whitespace-pre-wrap">{compileError}</pre>
+        </div>
+      )}
 
       {results && (
         <div className="px-6 pb-6 space-y-2">

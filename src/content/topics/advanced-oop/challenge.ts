@@ -3,86 +3,95 @@ import type { Challenge } from "@/types/challenge";
 export const challenge: Challenge = {
   title: "Build an Animal Inheritance Hierarchy",
   description:
-    "Create an `Animal` base class, then `Dog` and `Cat` subclasses that override `speak()`. Also build a `Person` class with a `Pet` field (composition) that can call `pet.speak()` through the owner.",
-  starterCode: `class Animal {
-  constructor(name) {
-    // TODO: set this.name
-  }
+    "Create an Animal base class, then Dog and Cat subclasses that override speak(). Also build a Person class with an Animal field (composition) that can call pet.speak() through the owner.",
+  starterCode: `public class Animal {
+    protected String name;
 
-  speak() {
-    // TODO: return \`\${this.name} makes a sound.\`
-  }
+    public Animal(String name) {
+        // TODO: set this.name
+    }
 
-  toString() {
-    // TODO: return e.g. "Animal(Rex)"
-  }
+    public String speak() {
+        // TODO: return name + " makes a sound."
+    }
+
+    @Override
+    public String toString() {
+        // TODO: return "Animal(" + name + ")"
+    }
 }
 
 class Dog extends Animal {
-  constructor(name) {
-    // TODO: call super, set this.type = "Dog"
-  }
+    public Dog(String name) {
+        // TODO: call super(name)
+    }
 
-  speak() {
-    // TODO: override — return \`\${this.name} says: Woof!\`
-  }
+    @Override
+    public String speak() {
+        // TODO: return name + " says: Woof!"
+    }
 }
 
 class Cat extends Animal {
-  constructor(name) {
-    // TODO: call super, set this.type = "Cat"
-  }
+    public Cat(String name) {
+        // TODO: call super(name)
+    }
 
-  speak() {
-    // TODO: override — return \`\${this.name} says: Meow!\`
-  }
+    @Override
+    public String speak() {
+        // TODO: return name + " says: Meow!"
+    }
 }
 
-// Composition: Person HAS-A pet (Animal)
 class Person {
-  constructor(name, pet) {
-    // TODO: set this.name and this.pet
-  }
+    private String name;
+    private Animal pet;
 
-  introducePet() {
-    // TODO: return \`Hi, I'm \${this.name} and my pet \${this.pet.name} says: \${this.pet.speak()}\`
-    // Hint: call this.pet.speak() — polymorphism in action
-  }
+    public Person(String name, Animal pet) {
+        // TODO: set this.name and this.pet
+    }
+
+    public String introducePet() {
+        // TODO: return "Hi, I'm " + name + " and my pet " + pet.name + " says: " + pet.speak()
+        // Hint: pet.speak() uses polymorphism — Dog or Cat version is called automatically
+    }
 }`,
   testCases: [
     {
       description: "Dog overrides speak()",
-      runnerCode: `
-const d = new Dog("Rex");
-return d.speak() === "Rex says: Woof!";
+      wrapperCode: `
+Dog d = new Dog("Rex");
+System.out.println(d.speak().equals("Rex says: Woof!") ? "PASS" : "FAIL: got " + d.speak());
 `,
     },
     {
       description: "Cat overrides speak()",
-      runnerCode: `
-const c = new Cat("Whiskers");
-return c.speak() === "Whiskers says: Meow!";
+      wrapperCode: `
+Cat c = new Cat("Whiskers");
+System.out.println(c.speak().equals("Whiskers says: Meow!") ? "PASS" : "FAIL: got " + c.speak());
 `,
     },
     {
       description: "Animal base speak() works",
-      runnerCode: `
-const a = new Animal("Buddy");
-return a.speak() === "Buddy makes a sound.";
+      wrapperCode: `
+Animal a = new Animal("Buddy");
+System.out.println(a.speak().equals("Buddy makes a sound.") ? "PASS" : "FAIL: got " + a.speak());
 `,
     },
     {
-      description: "Dog instanceof Animal (inheritance chain)",
-      runnerCode: `
-const d = new Dog("Rex");
-return d instanceof Animal && d instanceof Dog;
+      description: "Dog is an instance of Animal (inheritance chain)",
+      wrapperCode: `
+Dog d = new Dog("Rex");
+System.out.println((d instanceof Animal) ? "PASS" : "FAIL: Dog is not instanceof Animal");
 `,
     },
     {
       description: "Person.introducePet() uses polymorphism",
-      runnerCode: `
-const person = new Person("Alice", new Dog("Rex"));
-return person.introducePet() === "Hi, I'm Alice and my pet Rex says: Rex says: Woof!";
+      wrapperCode: `
+Person person = new Person("Alice", new Dog("Rex"));
+String expected = "Hi, I'm Alice and my pet Rex says: Rex says: Woof!";
+String actual = person.introducePet();
+System.out.println(actual.equals(expected) ? "PASS" : "FAIL: got " + actual);
 `,
     },
   ],

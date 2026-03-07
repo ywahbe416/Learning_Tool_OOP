@@ -20,23 +20,23 @@ fastest                                          slowest
 
 **Rule:** Always analyze the **worst case** unless specified otherwise.
 
-```javascript
+```java
 // O(1) — constant time regardless of array size
-function getFirst(arr) { return arr[0]; }
+public static int getFirst(int[] arr) { return arr[0]; }
 
 // O(n) — grows linearly with input
-function findMax(arr) {
-  let max = arr[0];
-  for (const x of arr) if (x > max) max = x;
-  return max;
+public static int findMax(int[] arr) {
+    int max = arr[0];
+    for (int x : arr) if (x > max) max = x;
+    return max;
 }
 
 // O(n²) — nested loops
-function hasDuplicate(arr) {
-  for (let i = 0; i < arr.length; i++)
-    for (let j = i + 1; j < arr.length; j++)
-      if (arr[i] === arr[j]) return true;
-  return false;
+public static boolean hasDuplicate(int[] arr) {
+    for (int i = 0; i < arr.length; i++)
+        for (int j = i + 1; j < arr.length; j++)
+            if (arr[i] == arr[j]) return true;
+    return false;
 }
 ```
 
@@ -47,28 +47,28 @@ function hasDuplicate(arr) {
 ### Linear Search — O(n)
 Check each element one by one. Works on any array (sorted or unsorted).
 
-```javascript
-function linearSearch(arr, target) {
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] === target) return i;
-  }
-  return -1;
+```java
+public static int linearSearch(int[] arr, int target) {
+    for (int i = 0; i < arr.length; i++) {
+        if (arr[i] == target) return i;
+    }
+    return -1;
 }
 ```
 
 ### Binary Search — O(log n)
 Only works on a **sorted** array. Halve the search space at each step.
 
-```javascript
-function binarySearch(arr, target) {
-  let low = 0, high = arr.length - 1;
-  while (low <= high) {
-    const mid = Math.floor((low + high) / 2);
-    if (arr[mid] === target) return mid;
-    if (arr[mid] < target) low = mid + 1;
-    else high = mid - 1;
-  }
-  return -1;
+```java
+public static int binarySearch(int[] arr, int target) {
+    int low = 0, high = arr.length - 1;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (arr[mid] == target) return mid;
+        if (arr[mid] < target) low = mid + 1;
+        else high = mid - 1;
+    }
+    return -1;
 }
 ```
 
@@ -86,25 +86,27 @@ Searching 1,000,000 elements: linear = up to 1,000,000 checks; binary = at most 
 | Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes |
 | Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |
 
-**Merge Sort** — divide, sort each half, merge. Guaranteed O(n log n). Good for linked lists.
+**Merge Sort** — divide, sort each half, merge. Guaranteed O(n log n).
 
-```javascript
-function mergeSort(arr) {
-  if (arr.length <= 1) return arr;
-  const mid = Math.floor(arr.length / 2);
-  const left = mergeSort(arr.slice(0, mid));
-  const right = mergeSort(arr.slice(mid));
-  return merge(left, right);
+```java
+public static int[] mergeSort(int[] arr) {
+    if (arr.length <= 1) return arr;
+    int mid = arr.length / 2;
+    int[] left = mergeSort(Arrays.copyOfRange(arr, 0, mid));
+    int[] right = mergeSort(Arrays.copyOfRange(arr, mid, arr.length));
+    return merge(left, right);
 }
 
-function merge(left, right) {
-  const result = [];
-  let i = 0, j = 0;
-  while (i < left.length && j < right.length) {
-    if (left[i] <= right[j]) result.push(left[i++]);
-    else result.push(right[j++]);
-  }
-  return [...result, ...left.slice(i), ...right.slice(j)];
+private static int[] merge(int[] left, int[] right) {
+    int[] result = new int[left.length + right.length];
+    int i = 0, j = 0, k = 0;
+    while (i < left.length && j < right.length) {
+        if (left[i] <= right[j]) result[k++] = left[i++];
+        else result[k++] = right[j++];
+    }
+    while (i < left.length) result[k++] = left[i++];
+    while (j < right.length) result[k++] = right[j++];
+    return result;
 }
 ```
 
@@ -116,19 +118,19 @@ Use **two indices** that move toward each other (or in the same direction) to so
 
 **Classic: Two Sum II** (sorted array, find pair that equals target)
 
-```javascript
-function twoSumSorted(arr, target) {
-  let left = 0, right = arr.length - 1;
-  while (left < right) {
-    const sum = arr[left] + arr[right];
-    if (sum === target) return [left, right];
-    if (sum < target) left++;   // need bigger sum
-    else right--;               // need smaller sum
-  }
-  return [];
+```java
+public static int[] twoSumSorted(int[] arr, int target) {
+    int left = 0, right = arr.length - 1;
+    while (left < right) {
+        int sum = arr[left] + arr[right];
+        if (sum == target) return new int[]{left, right};
+        if (sum < target) left++;   // need bigger sum
+        else right--;               // need smaller sum
+    }
+    return new int[]{};
 }
 
-twoSumSorted([1, 2, 3, 4, 6], 6); // [1, 3] (indices of 2 and 4)
+// twoSumSorted(new int[]{1,2,3,4,6}, 6) → [1, 3] (indices of 2 and 4)
 ```
 
 Two pointers requires a **sorted array**. Without sorting, use hashing for O(n).
@@ -141,82 +143,52 @@ Maintain a **window** (subarray/substring) that slides over the input. Avoids re
 
 **Classic: Maximum sum subarray of size k**
 
-```javascript
-function maxSubarraySum(arr, k) {
-  let windowSum = arr.slice(0, k).reduce((a, b) => a + b, 0);
-  let maxSum = windowSum;
+```java
+public static int maxWindowSum(int[] arr, int k) {
+    int windowSum = 0;
+    for (int i = 0; i < k; i++) windowSum += arr[i]; // first window
+    int maxSum = windowSum;
 
-  for (let i = k; i < arr.length; i++) {
-    windowSum += arr[i] - arr[i - k]; // slide: add new, remove old
-    maxSum = Math.max(maxSum, windowSum);
-  }
-  return maxSum;
+    for (int i = k; i < arr.length; i++) {
+        windowSum += arr[i] - arr[i - k]; // slide: add new, remove old
+        maxSum = Math.max(maxSum, windowSum);
+    }
+    return maxSum;
 }
 
-maxSubarraySum([2, 1, 5, 1, 3, 2], 3); // 9 (5+1+3)
+// maxWindowSum(new int[]{2,1,5,1,3,2}, 3) → 9 (5+1+3)
 ```
 
 ---
 
 ## Hashing
 
-Use a **Map/object** to achieve O(1) lookup and eliminate nested loops.
+Use a **HashMap** to achieve O(1) lookup and eliminate nested loops.
 
 **Classic: Two Sum** (unsorted, find indices of pair that sums to target)
 
-```javascript
-function twoSum(nums, target) {
-  const seen = new Map(); // value → index
-  for (let i = 0; i < nums.length; i++) {
-    const complement = target - nums[i];
-    if (seen.has(complement)) {
-      return [seen.get(complement), i];
+```java
+import java.util.HashMap;
+
+public static int[] twoSum(int[] nums, int target) {
+    HashMap<Integer, Integer> seen = new HashMap<>(); // value → index
+    for (int i = 0; i < nums.length; i++) {
+        int complement = target - nums[i];
+        if (seen.containsKey(complement)) {
+            return new int[]{seen.get(complement), i};
+        }
+        seen.put(nums[i], i);
     }
-    seen.set(nums[i], i);
-  }
-  return [];
+    return new int[]{};
 }
 
-twoSum([2, 7, 11, 15], 9); // [0, 1]
+// twoSum(new int[]{2,7,11,15}, 9) → [0, 1]
 ```
 
 **Other hashing patterns:**
-- **Frequency count:** `map.set(x, (map.get(x) ?? 0) + 1)`
-- **Seen set:** `const seen = new Set()` for cycle detection
-- **Grouping:** `map.get(key) ?? map.set(key, []).get(key)` then push
-
----
-
-## Backtracking
-
-Systematically **explore all possibilities** by choosing, exploring, then **un-choosing** (backtracking). Used for permutations, subsets, and constraint satisfaction.
-
-```
-Pattern: choose → explore → unchoose
-```
-
-**Classic: Generate all subsets**
-
-```javascript
-function subsets(nums) {
-  const result = [];
-
-  function backtrack(start, current) {
-    result.push([...current]);           // record current subset
-    for (let i = start; i < nums.length; i++) {
-      current.push(nums[i]);             // choose
-      backtrack(i + 1, current);         // explore
-      current.pop();                     // unchoose
-    }
-  }
-
-  backtrack(0, []);
-  return result;
-}
-
-subsets([1, 2, 3]);
-// [[], [1], [1,2], [1,2,3], [1,3], [2], [2,3], [3]]
-```
+- **Frequency count:** `map.put(x, map.getOrDefault(x, 0) + 1)`
+- **Seen set:** `HashSet<Integer> seen = new HashSet<>()` for cycle detection
+- **Grouping:** group items by a computed key using `computeIfAbsent`
 
 ---
 
@@ -230,31 +202,33 @@ subsets([1, 2, 3]);
 
 **Classic: Fibonacci with memoization**
 
-```javascript
-// Without DP: O(2ⁿ)
-// With DP: O(n)
-function fib(n, memo = new Map()) {
-  if (n <= 1) return n;
-  if (memo.has(n)) return memo.get(n);
-  const result = fib(n - 1, memo) + fib(n - 2, memo);
-  memo.set(n, result);
-  return result;
+```java
+import java.util.HashMap;
+
+// Without DP: O(2ⁿ) — With DP: O(n)
+public static long fib(int n, HashMap<Integer, Long> memo) {
+    if (n <= 1) return n;
+    if (memo.containsKey(n)) return memo.get(n);
+    long result = fib(n - 1, memo) + fib(n - 2, memo);
+    memo.put(n, result);
+    return result;
 }
 ```
 
 **Classic: Climbing stairs** (1D DP table)
 
-```javascript
+```java
 // How many ways to climb n stairs, taking 1 or 2 steps at a time?
-function climbStairs(n) {
-  const dp = [0, 1, 2];
-  for (let i = 3; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2]; // same recurrence as Fibonacci
-  }
-  return dp[n];
+public static int climbStairs(int n) {
+    int[] dp = new int[n + 1];
+    dp[0] = 1; dp[1] = 1;
+    for (int i = 2; i <= n; i++) {
+        dp[i] = dp[i - 1] + dp[i - 2]; // same recurrence as Fibonacci
+    }
+    return dp[n];
 }
 
-climbStairs(5); // 8
+// climbStairs(5) → 8
 ```
 
 **Recognize DP when:**

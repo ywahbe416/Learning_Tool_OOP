@@ -2,16 +2,16 @@
 
 ## What is Recursion?
 
-**Recursion** is when a method (function) **calls itself** to solve a smaller version of the same problem. Each call works on a reduced subproblem until it reaches a stopping condition.
+**Recursion** is when a method **calls itself** to solve a smaller version of the same problem. Each call works on a reduced subproblem until it reaches a stopping condition.
 
-```javascript
-function countdown(n) {
-  if (n <= 0) {
-    console.log("Done!");
-    return;
-  }
-  console.log(n);
-  countdown(n - 1); // calls itself with a smaller input
+```java
+public static void countdown(int n) {
+    if (n <= 0) {
+        System.out.println("Done!");
+        return;
+    }
+    System.out.println(n);
+    countdown(n - 1); // calls itself with a smaller input
 }
 
 countdown(3);
@@ -25,23 +25,23 @@ countdown(3);
 
 ## Base Case & Recursive Case
 
-Every recursive function needs **two parts**:
+Every recursive method needs **two parts**:
 
 | Part | Purpose | What happens without it |
 |---|---|---|
 | **Base case** | Stops the recursion | StackOverflowError — infinite recursion |
 | **Recursive case** | Breaks problem into smaller subproblem | No progress toward solution |
 
-```javascript
-function factorial(n) {
-  // BASE CASE — stop here
-  if (n === 1 || n === 0) return 1;
+```java
+public static int factorial(int n) {
+    // BASE CASE — stop here
+    if (n == 0 || n == 1) return 1;
 
-  // RECURSIVE CASE — smaller subproblem
-  return n * factorial(n - 1);
+    // RECURSIVE CASE — smaller subproblem
+    return n * factorial(n - 1);
 }
 
-factorial(4);
+// factorial(4):
 // = 4 * factorial(3)
 // = 4 * 3 * factorial(2)
 // = 4 * 3 * 2 * factorial(1)
@@ -49,13 +49,13 @@ factorial(4);
 // = 24
 ```
 
-**StackOverflowError** occurs when the base case is missing or never reached — the stack fills up with pending calls until it crashes.
+**StackOverflowError** occurs when the base case is missing or never reached — the call stack fills up with pending frames until it crashes.
 
 ---
 
 ## The Call Stack
 
-The **call stack** is how JavaScript (and Java) tracks function calls. Each time a function is called, a **stack frame** is pushed. When it returns, it's **popped** off. This is LIFO — Last In, First Out.
+The **call stack** is how Java tracks method calls. Each time a method is called, a **stack frame** is pushed. When it returns, it's **popped** off. This is LIFO — Last In, First Out.
 
 For `factorial(3)`:
 
@@ -79,12 +79,12 @@ Deep recursion = large call stack = StackOverflowError risk.
 
 ## Factorial
 
-Classic single recursion example. `n! = n × (n-1) × ... × 1`
+Classic single recursion example. `n! = n x (n-1) x ... x 1`
 
-```javascript
-function factorial(n) {
-  if (n <= 1) return 1;            // base case
-  return n * factorial(n - 1);    // recursive case
+```java
+public static long factorial(int n) {
+    if (n <= 1) return 1;           // base case
+    return n * factorial(n - 1);   // recursive case
 }
 
 factorial(5); // 120
@@ -92,11 +92,11 @@ factorial(0); // 1 (0! = 1 by definition)
 ```
 
 **Iterative equivalent** (for comparison):
-```javascript
-function factorialIterative(n) {
-  let result = 1;
-  for (let i = 2; i <= n; i++) result *= i;
-  return result;
+```java
+public static long factorialIterative(int n) {
+    long result = 1;
+    for (int i = 2; i <= n; i++) result *= i;
+    return result;
 }
 ```
 
@@ -108,27 +108,31 @@ function factorialIterative(n) {
 
 `fib(n) = fib(n-1) + fib(n-2)` with base cases `fib(0)=0, fib(1)=1`
 
-```javascript
-function fib(n) {
-  if (n <= 0) return 0;          // base case
-  if (n === 1) return 1;         // base case
-  return fib(n - 1) + fib(n - 2); // recursive case
+```java
+public static long fib(int n) {
+    if (n <= 0) return 0;              // base case
+    if (n == 1) return 1;              // base case
+    return fib(n - 1) + fib(n - 2);   // recursive case
 }
 
 fib(6); // 8  (sequence: 0, 1, 1, 2, 3, 5, 8)
 ```
 
-**Warning:** Naive recursive Fibonacci is O(2ⁿ) — exponential time. `fib(50)` would make ~1 trillion calls. In practice, use memoization or iteration:
+**Warning:** Naive recursive Fibonacci is O(2n) — exponential time. `fib(50)` would make ~1 trillion calls. In practice, use memoization:
 
-```javascript
-function fibMemo(n, memo = {}) {
-  if (n in memo) return memo[n];
-  if (n <= 1) return n;
-  memo[n] = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);
-  return memo[n];
+```java
+import java.util.HashMap;
+
+public static long fibMemo(int n, HashMap<Integer, Long> memo) {
+    if (memo.containsKey(n)) return memo.get(n);
+    if (n <= 0) return 0;
+    if (n == 1) return 1;
+    long result = fibMemo(n - 1, memo) + fibMemo(n - 2, memo);
+    memo.put(n, result);
+    return result;
 }
 
-fibMemo(50); // fast — O(n)
+fibMemo(50, new HashMap<>()); // fast — O(n)
 ```
 
 ---
@@ -137,26 +141,26 @@ fibMemo(50); // fast — O(n)
 
 Recursively halve a **sorted array** to find a target. O(log n) time — much faster than linear search.
 
-```javascript
-function binarySearch(arr, target, low = 0, high = arr.length - 1) {
-  // BASE CASE — not found
-  if (low > high) return -1;
+```java
+public static int binarySearch(int[] arr, int target, int low, int high) {
+    // BASE CASE — not found
+    if (low > high) return -1;
 
-  const mid = Math.floor((low + high) / 2);
+    int mid = (low + high) / 2;
 
-  if (arr[mid] === target) return mid;        // found!
-  if (arr[mid] < target) return binarySearch(arr, target, mid + 1, high); // search right
-  return binarySearch(arr, target, low, mid - 1);  // search left
+    if (arr[mid] == target) return mid;               // found!
+    if (arr[mid] < target)  return binarySearch(arr, target, mid + 1, high); // search right
+    return binarySearch(arr, target, low, mid - 1);   // search left
 }
 
-const sorted = [2, 5, 8, 12, 16, 23, 38, 56, 72, 91];
-binarySearch(sorted, 23);  // 5 (index)
-binarySearch(sorted, 99);  // -1 (not found)
+int[] sorted = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91};
+binarySearch(sorted, 23, 0, sorted.length - 1);  // 5 (index)
+binarySearch(sorted, 99, 0, sorted.length - 1);  // -1 (not found)
 ```
 
 **Why O(log n)?** Each call cuts the search space in half. Searching 1,000,000 elements takes at most ~20 calls.
 
-| n | log₂(n) calls max |
+| n | log2(n) calls max |
 |---|---|
 | 8 | 3 |
 | 1,024 | 10 |

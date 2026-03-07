@@ -8,8 +8,8 @@ A **data structure** is a way of organizing data in memory so it can be accessed
 |---|---|---|
 | Stack | LIFO ordering, undo, DFS | push/pop O(1) |
 | Queue | FIFO ordering, BFS | enqueue/dequeue O(1) |
-| Map | Key-value lookup | get/set O(1) avg |
-| Set | Uniqueness, fast membership | has/add O(1) avg |
+| HashMap | Key-value lookup | get/put O(1) avg |
+| HashSet | Uniqueness, fast membership | contains/add O(1) avg |
 | Linked List | Frequent head insertions | insert-head O(1), search O(n) |
 | BST | Sorted data, range queries | search/insert O(log n) |
 | Heap | Repeated min/max access | peek O(1), insert/extract O(log n) |
@@ -21,13 +21,17 @@ A **data structure** is a way of organizing data in memory so it can be accessed
 
 A **Stack** is LIFO — **Last In, First Out**. The most recently added item is the first to be removed. Think of a stack of plates: you add to the top, take from the top.
 
-```javascript
-class Stack {
-  constructor() { this.items = []; }
-  push(item)  { this.items.push(item); }
-  pop()       { return this.items.pop(); }
-  peek()      { return this.items[this.items.length - 1]; }
-  isEmpty()   { return this.items.length === 0; }
+```java
+import java.util.ArrayList;
+
+public class Stack<T> {
+    private ArrayList<T> items = new ArrayList<>();
+
+    public void push(T item)  { items.add(item); }
+    public T pop()            { return items.remove(items.size() - 1); }
+    public T peek()           { return items.get(items.size() - 1); }
+    public boolean isEmpty()  { return items.isEmpty(); }
+    public int size()         { return items.size(); }
 }
 ```
 
@@ -45,41 +49,47 @@ class Stack {
 
 A **Queue** is FIFO — **First In, First Out**. The first item added is the first removed. Think of a line at a store.
 
-```javascript
-class Queue {
-  constructor() { this.items = []; }
-  enqueue(item) { this.items.push(item); }      // add to rear
-  dequeue()     { return this.items.shift(); }   // remove from front
-  peek()        { return this.items[0]; }
-  isEmpty()     { return this.items.length === 0; }
+```java
+import java.util.ArrayList;
+
+public class Queue<T> {
+    private ArrayList<T> items = new ArrayList<>();
+
+    public void enqueue(T item) { items.add(item); }           // add to rear
+    public T dequeue()          { return items.remove(0); }    // remove from front
+    public T peek()             { return items.get(0); }
+    public boolean isEmpty()    { return items.isEmpty(); }
+    public int size()           { return items.size(); }
 }
 ```
 
-**Note:** `shift()` is O(n) in JavaScript. For high-performance queues, use a linked-list or circular buffer implementation.
+**Note:** `remove(0)` on an ArrayList is O(n) — it shifts all elements. Java's built-in `ArrayDeque` is more efficient for production use.
 
 **Real-world uses:**
 - Task scheduling, print queues
 - BFS (Breadth-First Search)
-- Circular wrap-around buffers (e.g., streaming)
+- Circular buffers (e.g., streaming)
 
 ---
 
-## Map (HashMap)
+## HashMap
 
-A **Map** stores **key-value pairs**. Keys are unique — setting the same key twice overwrites the value. `HashMap` is the fastest implementation (O(1) average).
+A **HashMap** stores **key-value pairs**. Keys are unique — putting the same key twice overwrites the value. O(1) average for all operations.
 
-```javascript
-const map = new Map();
-map.set("alice", 95);
-map.set("bob", 87);
-map.get("alice");        // 95
-map.has("carol");        // false
-map.delete("bob");
-map.size;                // 1
+```java
+import java.util.HashMap;
+
+HashMap<String, Integer> scores = new HashMap<>();
+scores.put("alice", 95);
+scores.put("bob", 87);
+scores.get("alice");           // 95
+scores.containsKey("carol");   // false
+scores.remove("bob");
+scores.size();                 // 1
 
 // Iteration
-for (const [key, value] of map) {
-  console.log(`${key}: ${value}`);
+for (String key : scores.keySet()) {
+    System.out.println(key + ": " + scores.get(key));
 }
 ```
 
@@ -89,34 +99,28 @@ for (const [key, value] of map) {
 - Two Sum (store seen values)
 - Adjacency lists for graphs
 
-**Time complexity:** get/set/has/delete — O(1) average, O(n) worst (hash collision)
+**Time complexity:** get/put/containsKey/remove — O(1) average, O(n) worst (hash collision)
 
 ---
 
-## Set
+## HashSet
 
-A **Set** stores **unique elements only** — no duplicates. Membership check is O(1).
+A **HashSet** stores **unique elements only** — no duplicates. Membership check is O(1).
 
-```javascript
-const set = new Set([1, 2, 3, 2, 1]);
-console.log(set.size);      // 3 — duplicates removed
-set.add(4);
-set.has(2);                 // true
-set.delete(1);
+```java
+import java.util.HashSet;
 
-// Set operations
-const a = new Set([1, 2, 3]);
-const b = new Set([2, 3, 4]);
-
-const union        = new Set([...a, ...b]);        // {1,2,3,4}
-const intersection = new Set([...a].filter(x => b.has(x))); // {2,3}
-const difference   = new Set([...a].filter(x => !b.has(x))); // {1}
+HashSet<Integer> set = new HashSet<>();
+set.add(1); set.add(2); set.add(3); set.add(2); // duplicate ignored
+System.out.println(set.size()); // 3
+set.contains(2);                // true
+set.remove(1);
 ```
 
 **Real-world uses:**
 - Deduplication
 - "Have I seen this?" checks in graph traversal
-- Set math (union, intersect, difference)
+- Fast membership testing
 
 ---
 
@@ -161,42 +165,10 @@ A **tree** is a hierarchical structure. A **Binary Search Tree (BST)** enforces 
 - All values in the **right subtree** > node value
 - This enables O(log n) search — at each node you halve the search space
 
-**Key operations (balanced BST):**
-- Search: O(log n)
-- Insert: O(log n)
-- Delete: O(log n)
-
 **Traversals:**
 - **In-order** (left → root → right): yields sorted output
 - **Pre-order** (root → left → right): useful for copying the tree
 - **Post-order** (left → right → root): useful for deletion
-
----
-
-## Heap
-
-A **Heap** is a complete binary tree where every parent satisfies the **heap property**:
-- **Min-heap:** parent ≤ children → minimum is always at the root
-- **Max-heap:** parent ≥ children → maximum is always at the root
-
-```
-Min-heap example:
-        1
-       / \
-      3   5
-     / \
-    7   9
-```
-
-**Operations:**
-- `peek()` — O(1): just look at root
-- `insert()` — O(log n): add at bottom, bubble up
-- `extractMin/Max()` — O(log n): remove root, reorganize
-
-**Real-world uses:**
-- Priority queues
-- Dijkstra's shortest path
-- Heap sort
 
 ---
 
@@ -209,36 +181,38 @@ A **Graph** is a collection of **vertices (nodes)** connected by **edges**. Unli
 - **Undirected**: edges go both ways (A — B)
 - **Weighted**: edges have a cost/distance
 
-```javascript
+```java
+import java.util.*;
+
 // Adjacency list representation
-const graph = {
-  A: ["B", "C"],
-  B: ["A", "D"],
-  C: ["A", "D"],
-  D: ["B", "C"],
-};
+HashMap<String, List<String>> graph = new HashMap<>();
+graph.put("A", Arrays.asList("B", "C"));
+graph.put("B", Arrays.asList("A", "D"));
+graph.put("C", Arrays.asList("A", "D"));
+graph.put("D", Arrays.asList("B", "C"));
 ```
 
 **BFS (Breadth-First Search)** — uses a **Queue**. Explores level by level. Finds shortest path in unweighted graphs.
 
-**DFS (Depth-First Search)** — uses a **Stack** (or recursion). Explores as deep as possible before backtracking. Useful for cycle detection, topological sort.
+**DFS (Depth-First Search)** — uses a **Stack** (or recursion). Explores as deep as possible before backtracking.
 
-```javascript
-function bfs(graph, start) {
-  const visited = new Set();
-  const queue = [start];
-  visited.add(start);
+```java
+public static void bfs(HashMap<String, List<String>> graph, String start) {
+    HashSet<String> visited = new HashSet<>();
+    Queue<String> queue = new LinkedList<>();
+    queue.add(start);
+    visited.add(start);
 
-  while (queue.length > 0) {
-    const node = queue.shift();
-    console.log(node);
-    for (const neighbor of graph[node]) {
-      if (!visited.has(neighbor)) {
-        visited.add(neighbor);
-        queue.push(neighbor);
-      }
+    while (!queue.isEmpty()) {
+        String node = queue.poll();
+        System.out.println(node);
+        for (String neighbor : graph.get(node)) {
+            if (!visited.contains(neighbor)) {
+                visited.add(neighbor);
+                queue.add(neighbor);
+            }
+        }
     }
-  }
 }
 ```
 
