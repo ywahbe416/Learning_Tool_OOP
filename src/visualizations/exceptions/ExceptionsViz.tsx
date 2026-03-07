@@ -178,7 +178,7 @@ export default function ExceptionsViz() {
                   <div key={i} className={`pl-4 ${isActive ? "text-slate-300" : "text-slate-600"}`}>{line}</div>
                 ))}
                 {state === "throwing" && (
-                  <div className="pl-4 text-rose-400 font-bold">throw e; // exception!</div>
+                  <div className="pl-4 text-rose-400 font-bold">{"throw e; // exception!"}</div>
                 )}
                 <span className={isActive ? block.color : "text-slate-500">{"}"}</span>
               </div>
