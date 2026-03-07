@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import { getTopicBySlug, topics } from "@/lib/topics";
 import { challengeRegistry } from "@/lib/challenges";
+import { vizSlugs } from "@/lib/visualizations";
 import { readFile } from "fs/promises";
 import path from "path";
 import ConceptSection from "@/components/topic/ConceptSection";
-import LinkedListViz from "@/visualizations/linked-list/LinkedListViz";
+import VizRenderer from "@/components/topic/VizRenderer";
 import ChallengePanel from "@/components/topic/ChallengePanel";
 
 export async function generateStaticParams() {
@@ -40,7 +41,7 @@ export default async function TopicPage({ params }: Props) {
   const mdxSource = await readFile(mdxPath, "utf-8");
 
   const challenge = challengeRegistry[slug] ?? null;
-  const hasVisualization = slug === "linked-lists";
+  const hasVisualization = vizSlugs.has(slug);
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
@@ -72,7 +73,7 @@ export default async function TopicPage({ params }: Props) {
 
         {/* Right: Visualization + Challenge */}
         <div className="flex flex-col gap-6">
-          {hasVisualization && <LinkedListViz />}
+          {hasVisualization && <VizRenderer slug={slug} />}
           {challenge && (
             <ChallengePanel challenge={challenge} topicSlug={slug} />
           )}

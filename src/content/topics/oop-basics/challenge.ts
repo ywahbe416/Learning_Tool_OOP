@@ -3,72 +3,80 @@ import type { Challenge } from "@/types/challenge";
 export const challenge: Challenge = {
   title: "Build a BankAccount Class",
   description:
-    "Implement a `BankAccount` class with encapsulation. Use a private `#balance` field, implement `deposit`, `withdraw` (throws on insufficient funds), `getBalance`, and `toString`.",
-  starterCode: `class BankAccount {
-  #balance; // private field
+    "Implement a BankAccount class with encapsulation. Use private fields, implement getOwner(), getBalance(), deposit(), withdraw() (throws on insufficient funds), and toString().",
+  starterCode: `public class BankAccount {
+    private String owner;
+    private double balance;
 
-  constructor(owner, initialBalance) {
-    // TODO: set this.owner and this.#balance
-  }
+    public BankAccount(String owner, double initialBalance) {
+        // TODO: set this.owner and this.balance
+    }
 
-  getBalance() {
-    // TODO: return the private balance
-  }
+    public String getOwner() {
+        // TODO: return owner
+    }
 
-  deposit(amount) {
-    // TODO: add amount to balance (ignore if amount <= 0)
-  }
+    public double getBalance() {
+        // TODO: return balance
+    }
 
-  withdraw(amount) {
-    // TODO: subtract amount from balance
-    // throw new Error("Insufficient funds") if amount > balance
-  }
+    public void deposit(double amount) {
+        // TODO: add amount to balance (ignore if amount <= 0)
+    }
 
-  toString() {
-    // TODO: return e.g. "BankAccount[owner=Alice, balance=500]"
-  }
+    public void withdraw(double amount) {
+        // TODO: subtract amount from balance
+        // throw new IllegalArgumentException("Insufficient funds") if amount > balance
+    }
+
+    @Override
+    public String toString() {
+        // TODO: return e.g. "BankAccount[owner=Alice, balance=500.0]"
+    }
 }`,
   testCases: [
     {
       description: "constructor sets owner and initial balance",
-      runnerCode: `
-const acct = new BankAccount("Alice", 500);
-return acct.owner === "Alice" && acct.getBalance() === 500;
+      wrapperCode: `
+BankAccount acct = new BankAccount("Alice", 500.0);
+boolean pass = acct.getOwner().equals("Alice") && acct.getBalance() == 500.0;
+System.out.println(pass ? "PASS" : "FAIL: owner or balance wrong");
 `,
     },
     {
       description: "deposit increases balance",
-      runnerCode: `
-const acct = new BankAccount("Bob", 100);
-acct.deposit(200);
-return acct.getBalance() === 300;
+      wrapperCode: `
+BankAccount acct = new BankAccount("Bob", 100.0);
+acct.deposit(200.0);
+System.out.println(acct.getBalance() == 300.0 ? "PASS" : "FAIL: expected 300.0, got " + acct.getBalance());
 `,
     },
     {
       description: "withdraw decreases balance",
-      runnerCode: `
-const acct = new BankAccount("Carol", 400);
-acct.withdraw(150);
-return acct.getBalance() === 250;
+      wrapperCode: `
+BankAccount acct = new BankAccount("Carol", 400.0);
+acct.withdraw(150.0);
+System.out.println(acct.getBalance() == 250.0 ? "PASS" : "FAIL: expected 250.0, got " + acct.getBalance());
 `,
     },
     {
       description: "withdraw throws on insufficient funds",
-      runnerCode: `
-const acct = new BankAccount("Dave", 100);
+      wrapperCode: `
+BankAccount acct = new BankAccount("Dave", 100.0);
 try {
-  acct.withdraw(200);
-  return false; // should have thrown
-} catch (e) {
-  return e.message === "Insufficient funds";
+    acct.withdraw(200.0);
+    System.out.println("FAIL: should have thrown");
+} catch (IllegalArgumentException e) {
+    System.out.println(e.getMessage().equals("Insufficient funds") ? "PASS" : "FAIL: wrong message: " + e.getMessage());
 }
 `,
     },
     {
       description: "toString returns correct format",
-      runnerCode: `
-const acct = new BankAccount("Alice", 500);
-return acct.toString() === "BankAccount[owner=Alice, balance=500]";
+      wrapperCode: `
+BankAccount acct = new BankAccount("Alice", 500.0);
+String s = acct.toString();
+System.out.println(s.equals("BankAccount[owner=Alice, balance=500.0]") ? "PASS" : "FAIL: got " + s);
 `,
     },
   ],

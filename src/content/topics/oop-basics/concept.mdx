@@ -12,17 +12,21 @@ Everything in OOP starts with two fundamental concepts: **classes** and **object
 
 A **class** is the blueprint — it defines what attributes (data) and methods (behavior) an object will have. It does not hold data itself; it describes the shape of the data.
 
-```javascript
-class Car {
-  constructor(make, model, year) {
-    this.make = make;
-    this.model = model;
-    this.year = year;
-  }
+```java
+public class Car {
+    String make;
+    String model;
+    int year;
 
-  describe() {
-    return `${this.year} ${this.make} ${this.model}`;
-  }
+    public Car(String make, String model, int year) {
+        this.make = make;
+        this.model = model;
+        this.year = year;
+    }
+
+    public String describe() {
+        return year + " " + make + " " + model;
+    }
 }
 ```
 
@@ -34,12 +38,12 @@ Think of a class like an architectural blueprint. The blueprint isn't a house �
 
 An **object** is a specific **instance** created from a class. You can create many objects from the same class, each with its own data.
 
-```javascript
-const car1 = new Car("Toyota", "Camry", 2022);
-const car2 = new Car("Honda", "Civic", 2023);
+```java
+Car car1 = new Car("Toyota", "Camry", 2022);
+Car car2 = new Car("Honda", "Civic", 2023);
 
-console.log(car1.describe()); // "2022 Toyota Camry"
-console.log(car2.describe()); // "2023 Honda Civic"
+System.out.println(car1.describe()); // "2022 Toyota Camry"
+System.out.println(car2.describe()); // "2023 Honda Civic"
 ```
 
 `car1` and `car2` are two separate objects — two houses built from the same blueprint.
@@ -50,22 +54,25 @@ console.log(car2.describe()); // "2023 Honda Civic"
 
 The **constructor** is a special method that runs automatically when you create an object with `new`. Its job is to **initialize** the object's fields with starting values.
 
-```javascript
-class Student {
-  constructor(name, gpa) {
-    this.name = name;   // instance field
-    this.gpa = gpa;     // instance field
-  }
+```java
+public class Student {
+    String name;   // instance field
+    double gpa;    // instance field
+
+    public Student(String name, double gpa) {
+        this.name = name;
+        this.gpa = gpa;
+    }
 }
 
-const s = new Student("Alex", 3.8);
-console.log(s.name); // "Alex"
+Student s = new Student("Alex", 3.8);
+System.out.println(s.name); // "Alex"
 ```
 
 Key rules:
-- In JavaScript, the constructor is always named `constructor`
-- In Java, it has the same name as the class
-- If you don't define one, a default no-argument constructor is used
+- The constructor always has the **same name as the class**
+- It has **no return type** (not even `void`)
+- If you don't define one, a default no-argument constructor is provided
 
 ---
 
@@ -75,89 +82,91 @@ Key rules:
 
 The practice: make fields **private**, expose them only through **public getters and setters**.
 
-```javascript
-class BankAccount {
-  #balance; // private field (JS syntax)
+```java
+public class BankAccount {
+    private String owner;    // private field
+    private double balance;  // private field
 
-  constructor(owner, initialBalance) {
-    this.owner = owner;
-    this.#balance = initialBalance;
-  }
+    public BankAccount(String owner, double initialBalance) {
+        this.owner = owner;
+        this.balance = initialBalance;
+    }
 
-  getBalance() {
-    return this.#balance;
-  }
+    public double getBalance() {
+        return balance;
+    }
 
-  deposit(amount) {
-    if (amount > 0) this.#balance += amount;
-  }
+    public void deposit(double amount) {
+        if (amount > 0) balance += amount;
+    }
 
-  withdraw(amount) {
-    if (amount > this.#balance) throw new Error("Insufficient funds");
-    this.#balance -= amount;
-  }
+    public void withdraw(double amount) {
+        if (amount > balance) throw new IllegalArgumentException("Insufficient funds");
+        balance -= amount;
+    }
 }
 
-const acct = new BankAccount("Alice", 500);
-acct.deposit(200);
-console.log(acct.getBalance()); // 700
-// acct.#balance = 99999; // ERROR — private!
+BankAccount acct = new BankAccount("Alice", 500.0);
+acct.deposit(200.0);
+System.out.println(acct.getBalance()); // 700.0
+// acct.balance = 99999; // ERROR — private!
 ```
 
 **Why encapsulate?**
 - Protects data from being set to invalid states
 - You can change the internal implementation without breaking outside code
 
-In Java: `private` fields + `public` getters/setters is the standard pattern.
-
 ---
 
 ## toString()
 
-`toString()` is a special method that returns a **string representation** of an object. It's called automatically when you print an object.
+`toString()` is a special method that returns a **string representation** of an object. It's called automatically when you print an object with `System.out.println()`.
 
-```javascript
-class Point {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
+```java
+public class Point {
+    int x, y;
 
-  toString() {
-    return `Point(${this.x}, ${this.y})`;
-  }
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "Point(" + x + ", " + y + ")";
+    }
 }
 
-const p = new Point(3, 4);
-console.log(String(p)); // "Point(3, 4)"
-console.log(`Location: ${p}`); // "Location: Point(3, 4)"
+Point p = new Point(3, 4);
+System.out.println(p);           // "Point(3, 4)"
+System.out.println("At: " + p); // "At: Point(3, 4)"
 ```
 
-In Java, every class inherits `toString()` from the `Object` class. Without overriding it, you'd get something like `Car@1b6d3586` — the memory address. Always override it.
+Every class inherits `toString()` from the `Object` class. Without overriding it, you'd get something like `Point@1b6d3586` — the memory address. Always override it.
 
 ---
 
 ## ArrayList (Dynamic Arrays)
 
-In Java, a regular array has a **fixed size**. `ArrayList` is a **dynamic, resizable** collection that can grow and shrink.
+A regular Java array has a **fixed size**. `ArrayList` is a **dynamic, resizable** collection that can grow and shrink.
 
-In JavaScript, arrays are already dynamic — they work like Java's `ArrayList` by default.
+| Operation | Java ArrayList |
+|---|---|
+| Create | `new ArrayList<>()` |
+| Add | `list.add(item)` |
+| Get | `list.get(i)` |
+| Remove | `list.remove(i)` |
+| Size | `list.size()` |
 
-| Operation | Java ArrayList | JavaScript Array |
-|---|---|---|
-| Create | `new ArrayList<>()` | `[]` |
-| Add | `list.add(item)` | `arr.push(item)` |
-| Get | `list.get(i)` | `arr[i]` |
-| Remove | `list.remove(i)` | `arr.splice(i, 1)` |
-| Size | `list.size()` | `arr.length` |
+```java
+import java.util.ArrayList;
 
-```javascript
-const students = [];
-students.push("Alice");
-students.push("Bob");
-students.push("Charlie");
+ArrayList<String> students = new ArrayList<>();
+students.add("Alice");
+students.add("Bob");
+students.add("Charlie");
 
-console.log(students.length); // 3
-students.splice(1, 1);        // remove "Bob"
-console.log(students);        // ["Alice", "Charlie"]
+System.out.println(students.size()); // 3
+students.remove(1);                  // remove "Bob"
+System.out.println(students);        // [Alice, Charlie]
 ```

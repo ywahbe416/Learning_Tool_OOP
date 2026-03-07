@@ -19,12 +19,15 @@ Every linked list is built from **nodes**. A singly linked list node contains:
 - `value` — the data stored in the node
 - `next` — a reference to the next node (or `null` if it's the last node)
 
-```javascript
-class Node {
-  constructor(value) {
-    this.value = value;
-    this.next = null;
-  }
+```java
+public class Node {
+    int value;
+    Node next;
+
+    public Node(int value) {
+        this.value = value;
+        this.next = null;
+    }
 }
 ```
 
@@ -43,6 +46,29 @@ head → [1 | →] → [2 | →] → [3 | null]
 - **Insert at Tail** — O(n): traverse to end, then append
 - **Delete** — O(n): traverse to find node, re-link predecessor's `next`
 - **Search** — O(n): traverse until value found
+
+```java
+public class LinkedList {
+    private Node head;
+    private int size;
+
+    public void insertAtHead(int value) {
+        Node newNode = new Node(value);
+        newNode.next = head;
+        head = newNode;
+        size++;
+    }
+
+    public void insertAtTail(int value) {
+        Node newNode = new Node(value);
+        if (head == null) { head = newNode; size++; return; }
+        Node current = head;
+        while (current.next != null) current = current.next;
+        current.next = newNode;
+        size++;
+    }
+}
+```
 
 ---
 
@@ -98,7 +124,7 @@ A **circular linked list** is a variant where the last node's `next` points **ba
 - You don't need random access by index
 - The size of the data changes frequently
 
-**Prefer an array when:**
+**Prefer an array/ArrayList when:**
 - You need fast index-based access
 - Memory locality matters (cache performance)
 - The size is relatively stable
