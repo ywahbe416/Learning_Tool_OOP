@@ -1,0 +1,265 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Learning Studio DS & OOP" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - paragraph [ref=e6]: Learning Studio
+          - paragraph [ref=e7]: DS & OOP
+        - button "Toggle light mode" [ref=e9] [cursor=pointer]: Light Mode
+    - main [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e13]:
+          - link "← Back to all topics" [ref=e14] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e15]: ←
+            - generic [ref=e16]: Back to all topics
+          - generic [ref=e17]:
+            - generic [ref=e18]:
+              - generic [ref=e19]:
+                - generic [ref=e20]: advanced
+                - generic [ref=e21]: big-O • sorting • hashing • dynamic programming
+              - heading "Algorithms" [level=1] [ref=e22]
+              - paragraph [ref=e23]: Search, Sort, Two Pointers, Hashing & Big-O
+            - generic [ref=e24]:
+              - generic [ref=e25]:
+                - paragraph [ref=e26]: Mode
+                - paragraph [ref=e27]: Read
+                - paragraph [ref=e28]: concept notes
+              - generic [ref=e29]:
+                - paragraph [ref=e30]: Mode
+                - paragraph [ref=e31]: Interact
+                - paragraph [ref=e32]: guided lab
+              - generic [ref=e33]:
+                - paragraph [ref=e34]: Mode
+                - paragraph [ref=e35]: Code
+                - paragraph [ref=e36]: Java challenge
+        - generic [ref=e38]:
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - paragraph [ref=e42]: Lesson Flow
+              - paragraph [ref=e43]: "Move through the topic in order: understand the idea, test it visually, then implement it in code."
+            - generic [ref=e44]: 0/3 steps completed
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - paragraph [ref=e48]: Read
+              - paragraph [ref=e49]: Concept
+              - paragraph [ref=e50]: Work through the explanation and main examples.
+              - button "Mark Concept Read" [ref=e51] [cursor=pointer]
+            - generic [ref=e52]:
+              - paragraph [ref=e53]: Interact
+              - paragraph [ref=e54]: Lab
+              - paragraph [ref=e55]: Use the visualization and practice prompts.
+              - button "Mark Lab Explored" [ref=e56] [cursor=pointer]
+            - generic [ref=e57]:
+              - paragraph [ref=e58]: Code
+              - paragraph [ref=e59]: Challenge
+              - paragraph [ref=e60]: Complete the Java task and pass the tests.
+              - generic [ref=e61]: Pass Tests to Complete
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - paragraph [ref=e65]: Concept Guide
+              - paragraph [ref=e66]: Read the explanation first, then use the lab and challenge to test the idea in motion.
+            - generic [ref=e68]:
+              - blockquote [ref=e69]:
+                - paragraph [ref=e70]: "In this lesson: focus on the decision patterns behind efficient algorithms, not just memorizing implementations."
+                - paragraph [ref=e71]: Use the lab to predict how the algorithm narrows the problem, then reproduce the same logic in Java.
+              - heading "Big-O Notation" [level=2] [ref=e72]
+              - paragraph [ref=e73]:
+                - strong [ref=e74]: Big-O
+                - text: describes how an algorithm's time (or space) grows as input size
+                - code [ref=e75]: "`n`"
+                - text: grows. We keep the
+                - strong [ref=e76]: largest term
+                - text: and drop constants — we care about the shape, not the exact number.
+              - code [ref=e78]: O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ) fastest slowest
+              - paragraph [ref=e79]: "| Complexity | Name | Example | |---|---|---| | O(1) | Constant | Array access, HashMap get | | O(log n) | Logarithmic | Binary search, BST operations | | O(n) | Linear | Linear search, single loop | | O(n log n) | Linearithmic | Merge sort, heap sort | | O(n²) | Quadratic | Bubble sort, nested loops | | O(2ⁿ) | Exponential | Naive Fibonacci, subsets |"
+              - paragraph [ref=e80]:
+                - strong [ref=e81]: "Rule:"
+                - text: Always analyze the
+                - strong [ref=e82]: worst case
+                - text: unless specified otherwise.
+              - code [ref=e84]: "// O(1) — constant time regardless of array size public static int getFirst(int[] arr) { return arr[0]; } // O(n) — grows linearly with input public static int findMax(int[] arr) { int max = arr[0]; for (int x : arr) if (x > max) max = x; return max; } // O(n²) — nested loops public static boolean hasDuplicate(int[] arr) { for (int i = 0; i < arr.length; i++) for (int j = i + 1; j < arr.length; j++) if (arr[i] == arr[j]) return true; return false; }"
+              - separator [ref=e85]
+              - heading "Search" [level=2] [ref=e86]
+              - heading "Linear Search — O(n)" [level=3] [ref=e87]
+              - paragraph [ref=e88]: Check each element one by one. Works on any array (sorted or unsorted).
+              - code [ref=e90]: "public static int linearSearch(int[] arr, int target) { for (int i = 0; i < arr.length; i++) { if (arr[i] == target) return i; } return -1; }"
+              - heading "Binary Search — O(log n)" [level=3] [ref=e91]
+              - paragraph [ref=e92]:
+                - text: Only works on a
+                - strong [ref=e93]: sorted
+                - text: array. Halve the search space at each step.
+              - code [ref=e95]: "public static int binarySearch(int[] arr, int target) { int low = 0, high = arr.length - 1; while (low <= high) { int mid = (low + high) / 2; if (arr[mid] == target) return mid; if (arr[mid] < target) low = mid + 1; else high = mid - 1; } return -1; }"
+              - paragraph [ref=e96]: "Searching 1,000,000 elements: linear = up to 1,000,000 checks; binary = at most 20."
+              - separator [ref=e97]
+              - heading "Sorting" [level=2] [ref=e98]
+              - paragraph [ref=e99]: "| Algorithm | Best | Average | Worst | Space | Stable? | |---|---|---|---|---|---| | Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | | Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | Yes | | Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | No | | Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | Yes | | Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | No |"
+              - paragraph [ref=e100]:
+                - strong [ref=e101]: Merge Sort
+                - text: — divide, sort each half, merge. Guaranteed O(n log n).
+              - code [ref=e103]: "public static int[] mergeSort(int[] arr) { if (arr.length <= 1) return arr; int mid = arr.length / 2; int[] left = mergeSort(Arrays.copyOfRange(arr, 0, mid)); int[] right = mergeSort(Arrays.copyOfRange(arr, mid, arr.length)); return merge(left, right); } private static int[] merge(int[] left, int[] right) { int[] result = new int[left.length + right.length]; int i = 0, j = 0, k = 0; while (i < left.length && j < right.length) { if (left[i] <= right[j]) result[k++] = left[i++]; else result[k++] = right[j++]; } while (i < left.length) result[k++] = left[i++]; while (j < right.length) result[k++] = right[j++]; return result; }"
+              - separator [ref=e104]
+              - heading "Two Pointers" [level=2] [ref=e105]
+              - paragraph [ref=e106]:
+                - text: Use
+                - strong [ref=e107]: two indices
+                - text: that move toward each other (or in the same direction) to solve problems in O(n) instead of O(n²).
+              - paragraph [ref=e108]:
+                - strong [ref=e109]: "Classic: Two Sum II"
+                - text: (sorted array, find pair that equals target)
+              - code [ref=e111]: "public static int[] twoSumSorted(int[] arr, int target) { int left = 0, right = arr.length - 1; while (left < right) { int sum = arr[left] + arr[right]; if (sum == target) return new int[]{left, right}; if (sum < target) left++; // need bigger sum else right--; // need smaller sum } return new int[]{}; } // twoSumSorted(new int[]{1,2,3,4,6}, 6) → [1, 3] (indices of 2 and 4)"
+              - paragraph [ref=e112]:
+                - text: Two pointers requires a
+                - strong [ref=e113]: sorted array
+                - text: . Without sorting, use hashing for O(n).
+              - separator [ref=e114]
+              - heading "Sliding Window" [level=2] [ref=e115]
+              - paragraph [ref=e116]:
+                - text: Maintain a
+                - strong [ref=e117]: window
+                - text: (subarray/substring) that slides over the input. Avoids recomputing from scratch at each position — O(n) instead of O(n²).
+              - paragraph [ref=e118]:
+                - strong [ref=e119]: "Classic: Maximum sum subarray of size k"
+              - code [ref=e121]: "public static int maxWindowSum(int[] arr, int k) { int windowSum = 0; for (int i = 0; i < k; i++) windowSum += arr[i]; // first window int maxSum = windowSum; for (int i = k; i < arr.length; i++) { windowSum += arr[i] - arr[i - k]; // slide: add new, remove old maxSum = Math.max(maxSum, windowSum); } return maxSum; } // maxWindowSum(new int[]{2,1,5,1,3,2}, 3) → 9 (5+1+3)"
+              - separator [ref=e122]
+              - heading "Hashing" [level=2] [ref=e123]
+              - paragraph [ref=e124]:
+                - text: Use a
+                - strong [ref=e125]: HashMap
+                - text: to achieve O(1) lookup and eliminate nested loops.
+              - paragraph [ref=e126]:
+                - strong [ref=e127]: "Classic: Two Sum"
+                - text: (unsorted, find indices of pair that sums to target)
+              - code [ref=e129]: "import java.util.HashMap; public static int[] twoSum(int[] nums, int target) { HashMap<Integer, Integer> seen = new HashMap<>(); // value → index for (int i = 0; i < nums.length; i++) { int complement = target - nums[i]; if (seen.containsKey(complement)) { return new int[]{seen.get(complement), i}; } seen.put(nums[i], i); } return new int[]{}; } // twoSum(new int[]{2,7,11,15}, 9) → [0, 1]"
+              - paragraph [ref=e130]:
+                - strong [ref=e131]: "Other hashing patterns:"
+              - list [ref=e132]:
+                - listitem [ref=e133]:
+                  - strong [ref=e134]: "Frequency count:"
+                  - code [ref=e135]: "`map.put(x, map.getOrDefault(x, 0) + 1)`"
+                - listitem [ref=e136]:
+                  - strong [ref=e137]: "Seen set:"
+                  - code [ref=e138]: "`HashSet<Integer> seen = new HashSet<>()`"
+                  - text: for cycle detection
+                - listitem [ref=e139]:
+                  - strong [ref=e140]: "Grouping:"
+                  - text: group items by a computed key using
+                  - code [ref=e141]: "`computeIfAbsent`"
+              - separator [ref=e142]
+              - heading "Dynamic Programming" [level=2] [ref=e143]
+              - paragraph [ref=e144]:
+                - strong [ref=e145]: Memoize
+                - text: (cache) the results of overlapping subproblems to avoid recomputation. Transforms exponential recursion into polynomial time.
+              - paragraph [ref=e146]:
+                - strong [ref=e147]: "Two approaches:"
+              - list [ref=e148]:
+                - listitem [ref=e149]:
+                  - strong [ref=e150]: "Top-down (memoization):"
+                  - text: Recursive + cache
+                - listitem [ref=e151]:
+                  - strong [ref=e152]: "Bottom-up (tabulation):"
+                  - text: Build solution iteratively from base cases
+              - paragraph [ref=e153]:
+                - strong [ref=e154]: "Classic: Fibonacci with memoization"
+              - code [ref=e156]: "import java.util.HashMap; // Without DP: O(2ⁿ) — With DP: O(n) public static long fib(int n, HashMap<Integer, Long> memo) { if (n <= 1) return n; if (memo.containsKey(n)) return memo.get(n); long result = fib(n - 1, memo) + fib(n - 2, memo); memo.put(n, result); return result; }"
+              - paragraph [ref=e157]:
+                - strong [ref=e158]: "Classic: Climbing stairs"
+                - text: (1D DP table)
+              - code [ref=e160]: "// How many ways to climb n stairs, taking 1 or 2 steps at a time? public static int climbStairs(int n) { int[] dp = new int[n + 1]; dp[0] = 1; dp[1] = 1; for (int i = 2; i <= n; i++) { dp[i] = dp[i - 1] + dp[i - 2]; // same recurrence as Fibonacci } return dp[n]; } // climbStairs(5) → 8"
+              - paragraph [ref=e161]:
+                - strong [ref=e162]: "Recognize DP when:"
+              - list [ref=e163]:
+                - listitem [ref=e164]: Problem has overlapping subproblems
+                - listitem [ref=e165]: Optimal solution depends on optimal solutions to smaller subproblems
+                - listitem [ref=e166]: "Keywords: \"minimum/maximum ways\", \"count paths\", \"longest/shortest\""
+          - generic [ref=e167]:
+            - generic [ref=e168]:
+              - generic [ref=e169]:
+                - paragraph [ref=e170]: Interactive Lab
+                - generic [ref=e171]:
+                  - generic [ref=e172]:
+                    - heading "Binary Search Coach" [level=3] [ref=e173]
+                    - paragraph [ref=e174]: Flip between an animated walkthrough and a prediction game so students actively choose the next comparison instead of only watching it happen.
+                  - generic [ref=e175]:
+                    - paragraph [ref=e176]: Objective
+                    - paragraph [ref=e177]: Students should recognize the active search window, compute the midpoint, and justify why each comparison removes half the candidates.
+                - generic [ref=e179]:
+                  - generic [ref=e180]:
+                    - paragraph [ref=e181]: Search Space
+                    - paragraph [ref=e182]: No active range
+                  - generic [ref=e183]:
+                    - paragraph [ref=e184]: Practice Score
+                    - paragraph [ref=e185]: 0/0 correct
+                  - generic [ref=e186]:
+                    - paragraph [ref=e187]: Mode
+                    - paragraph [ref=e188]: Ready
+              - generic [ref=e190]:
+                - generic [ref=e191]:
+                  - generic [ref=e192]:
+                    - generic [ref=e193]:
+                      - generic [ref=e194]: Target
+                      - spinbutton "Target" [ref=e195]: "23"
+                    - button "Watch Demo" [ref=e196] [cursor=pointer]
+                    - button "Practice Midpoints" [ref=e197] [cursor=pointer]
+                    - button "Reset" [ref=e198] [cursor=pointer]
+                  - img [ref=e200]:
+                    - generic [ref=e203]: "2"
+                    - generic [ref=e206]: "5"
+                    - generic [ref=e209]: "8"
+                    - generic [ref=e212]: "12"
+                    - generic [ref=e215]: "16"
+                    - generic [ref=e218]: "23"
+                    - generic [ref=e221]: "38"
+                    - generic [ref=e224]: "56"
+                  - generic [ref=e225]: Pick a target, then either watch the demo or predict each midpoint yourself.
+                - generic [ref=e226]:
+                  - generic [ref=e227]:
+                    - paragraph [ref=e228]: Active Prompt
+                    - paragraph [ref=e229]: Pick a target, then either watch the demo or predict each midpoint yourself.
+                    - generic [ref=e231]: Practice choices appear once a round starts.
+                  - generic [ref=e232]:
+                    - paragraph [ref=e233]: Why It Works
+                    - generic [ref=e234]:
+                      - paragraph [ref=e235]: Binary search only works on sorted data because the midpoint comparison tells you which half can be discarded safely.
+                      - paragraph [ref=e236]: Every guess should target the midpoint of the current low/high window, not the original array.
+                      - paragraph [ref=e237]: The more precise the active range becomes, the fewer remaining comparisons are possible.
+            - generic [ref=e238]:
+              - generic [ref=e239]:
+                - paragraph [ref=e240]: Coding Lab
+                - generic [ref=e241]:
+                  - generic [ref=e242]:
+                    - heading "Core Algorithm Patterns" [level=3] [ref=e243]
+                    - paragraph [ref=e244]: "Implement four essential patterns: binary search O(log n), Two Sum with HashMap O(n), max sliding window sum, and merge sort. Each tests a different algorithmic thinking pattern."
+                  - generic [ref=e245]:
+                    - paragraph [ref=e246]: Goal
+                    - paragraph [ref=e247]: Write the missing Java logic, run the tests, and use failures as feedback until the behavior matches the concept lab.
+              - generic [ref=e249]:
+                - generic [ref=e250]:
+                  - paragraph [ref=e251]: Test Cases
+                  - paragraph [ref=e252]: 6 checks ready
+                - generic [ref=e253]:
+                  - paragraph [ref=e254]: Current Status
+                  - paragraph [ref=e255]: Not run yet
+                - generic [ref=e256]:
+                  - paragraph [ref=e257]: Completion
+                  - paragraph [ref=e258]: Work through failing cases
+              - generic [ref=e263]: Loading...
+              - button "Run Tests" [ref=e266] [cursor=pointer]
+        - generic [ref=e268]:
+          - generic [ref=e269]:
+            - paragraph [ref=e270]: Next Recommended
+            - paragraph [ref=e271]: Keep momentum by moving directly into the next topic that still has unfinished steps.
+          - generic [ref=e272]:
+            - generic [ref=e273]: Continue Your Path
+            - paragraph [ref=e274]: OOP in Java
+            - paragraph [ref=e275]: Classes, Objects & Encapsulation
+            - paragraph [ref=e276]: "Master the core building blocks of Object-Oriented Programming: classes, objects, constructors, encapsulation, and ArrayList."
+            - link "Open OOP in Java" [ref=e277] [cursor=pointer]:
+              - /url: /topics/oop-basics
+              - generic [ref=e278]: Open OOP in Java
+              - generic [ref=e279]: →
+  - button "Open Next.js Dev Tools" [ref=e285] [cursor=pointer]:
+    - img [ref=e286]
+  - alert [ref=e289]

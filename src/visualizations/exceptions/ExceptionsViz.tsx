@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import VisualizationCard from "@/components/topic/VisualizationCard";
 
 type Scenario = "normal" | "exception" | "rethrow";
+type BlockKey = "try" | "catch" | "finally" | null;
 
 interface Block {
   label: string;
@@ -12,68 +14,74 @@ interface Block {
   lines: string[];
 }
 
-const BLOCKS: Record<string, Block> = {
+interface Step {
+  block: BlockKey;
+  note: string;
+  throwAt?: "try" | "catch";
+}
+
+const BLOCKS: Record<Exclude<BlockKey, null>, Block> = {
   try: {
     label: "try",
-    color: "text-indigo-400",
-    border: "border-indigo-500",
-    bg: "bg-indigo-950/40",
+    color: "text-cyan-300",
+    border: "border-cyan-500",
+    bg: "bg-cyan-950/30",
     lines: ["  riskyOperation();", "  // more code..."],
   },
   catch: {
     label: "catch (Exception e)",
-    color: "text-rose-400",
+    color: "text-rose-300",
     border: "border-rose-500",
-    bg: "bg-rose-950/40",
+    bg: "bg-rose-950/30",
     lines: ["  System.out.println(e.getMessage());"],
   },
   finally: {
     label: "finally",
-    color: "text-amber-400",
+    color: "text-amber-300",
     border: "border-amber-500",
-    bg: "bg-amber-950/40",
-    lines: ["  connection.close(); // always runs"],
+    bg: "bg-amber-950/30",
+    lines: ["  connection.close();"],
   },
 };
 
-type Step = {
-  block: "try" | "catch" | "finally" | null;
-  note: string;
-  throwAt?: "try" | "catch";
-};
-
-const SCENARIOS: Record<Scenario, { label: string; description: string; steps: Step[] }> = {
+const SCENARIOS: Record<Scenario, { label: string; description: string; steps: Step[]; question: string; answer: string }> = {
   normal: {
-    label: "Normal (no exception)",
-    description: "Code in try runs fully. catch is skipped. finally always runs.",
+    label: "Normal Flow",
+    description: "The try block finishes, catch is skipped, and finally still runs for cleanup.",
+    question: "If no exception is thrown, which block executes after try finishes?",
+    answer: "finally",
     steps: [
-      { block: "try", note: "Executing try block..." },
-      { block: "try", note: "try block completes normally." },
-      { block: "finally", note: "finally always runs — cleanup happens here." },
-      { block: null, note: "Program continues normally." },
+      { block: "try", note: "Execution enters try and runs riskyOperation()." },
+      { block: "try", note: "The try block completes normally." },
+      { block: "finally", note: "finally runs even when no error occurred." },
+      { block: null, note: "Program continues after cleanup." },
     ],
   },
   exception: {
-    label: "Exception thrown",
-    description: "Exception fires inside try. Execution jumps to catch. finally still runs.",
+    label: "Handled Exception",
+    description: "The exception interrupts try, jumps to catch, then finally runs before continuing.",
+    question: "When try throws and catch handles it, which block definitely still runs afterward?",
+    answer: "finally",
     steps: [
-      { block: "try", note: "Executing try block..." },
-      { block: "try", note: "Exception thrown! Jumping to catch...", throwAt: "try" },
-      { block: "catch", note: "Catching and handling the exception." },
-      { block: "finally", note: "finally always runs — even after catch." },
-      { block: null, note: "Program recovers and continues." },
+      { block: "try", note: "Execution enters try." },
+      { block: "try", note: "An exception is thrown inside try.", throwAt: "try" },
+      { block: "catch", note: "Control jumps to catch to handle the problem." },
+      { block: "finally", note: "finally runs after catch for cleanup." },
+      { block: null, note: "The program recovers and keeps going." },
     ],
   },
   rethrow: {
-    label: "Re-throw in catch",
-    description: "catch re-throws the exception. finally still runs before it propagates.",
+    label: "Re-throw",
+    description: "catch sees the exception but re-throws it; finally still runs before the error escapes.",
+    question: "If catch re-throws the exception, which block still executes before the exception propagates?",
+    answer: "finally",
     steps: [
-      { block: "try", note: "Executing try block..." },
-      { block: "try", note: "Exception thrown!", throwAt: "try" },
-      { block: "catch", note: "catch runs — decides to re-throw the exception." },
-      { block: "catch", note: "throw e; — re-throwing!", throwAt: "catch" },
-      { block: "finally", note: "finally runs even when re-throwing." },
-      { block: null, note: "Exception propagates to the caller." },
+      { block: "try", note: "Execution enters try." },
+      { block: "try", note: "An exception is thrown inside try.", throwAt: "try" },
+      { block: "catch", note: "catch receives the exception." },
+      { block: "catch", note: "catch re-throws the exception.", throwAt: "catch" },
+      { block: "finally", note: "finally still executes before propagation." },
+      { block: null, note: "The exception bubbles to the caller." },
     ],
   },
 };
@@ -82,52 +90,104 @@ export default function ExceptionsViz() {
   const [scenario, setScenario] = useState<Scenario>("normal");
   const [stepIdx, setStepIdx] = useState(-1);
   const [running, setRunning] = useState(false);
+  const [practiceMode, setPracticeMode] = useState(false);
+  const [score, setScore] = useState({ correct: 0, attempts: 0 });
+  const [prompt, setPrompt] = useState(
+    "Pick a scenario, then watch the execution path or predict which block runs next."
+  );
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const steps = SCENARIOS[scenario].steps;
   const currentStep = stepIdx >= 0 && stepIdx < steps.length ? steps[stepIdx] : null;
 
+  const missionState = useMemo(() => {
+    const started = stepIdx >= 0;
+    const visitedCatch = steps.slice(0, Math.max(stepIdx + 1, 0)).some((step) => step.block === "catch");
+    const visitedFinally = steps.slice(0, Math.max(stepIdx + 1, 0)).some((step) => step.block === "finally");
+
+    return [
+      { label: "Trace one full exception path", done: started && !running },
+      { label: "See when catch is skipped or visited", done: visitedCatch || scenario === "normal" },
+      { label: "Confirm finally runs", done: visitedFinally },
+      { label: "Answer one prediction question", done: score.attempts > 0 },
+    ];
+  }, [running, scenario, score.attempts, stepIdx, steps]);
+
   function clearTimers() {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
   }
 
-  function reset() {
+  function reset(nextPrompt?: string) {
     clearTimers();
     setStepIdx(-1);
     setRunning(false);
-  }
-
-  function runAuto() {
-    reset();
-    setRunning(true);
-    let i = 0;
-    function next() {
-      if (i < steps.length) {
-        setStepIdx(i);
-        i++;
-        timerRef.current = setTimeout(next, 1000);
-      } else {
-        setRunning(false);
-      }
-    }
-    timerRef.current = setTimeout(next, 300);
-  }
-
-  function stepForward() {
-    if (stepIdx < steps.length - 1) {
-      setStepIdx((s) => s + 1);
+    setPracticeMode(false);
+    setSelectedAnswer(null);
+    if (nextPrompt) {
+      setPrompt(nextPrompt);
     }
   }
 
   useEffect(() => () => clearTimers(), []);
 
-  function blockState(blockKey: "try" | "catch" | "finally") {
+  function runAuto() {
+    reset();
+    setRunning(true);
+    setPrompt("Follow the control flow and watch how exceptions redirect execution.");
+
+    let index = 0;
+
+    function next() {
+      if (index < steps.length) {
+        setStepIdx(index);
+        index += 1;
+        timerRef.current = setTimeout(next, 950);
+        return;
+      }
+
+      setRunning(false);
+      setPrompt("Trace finished. Try another scenario or switch into prediction mode.");
+    }
+
+    timerRef.current = setTimeout(next, 250);
+  }
+
+  function startPractice() {
+    reset();
+    setPracticeMode(true);
+    setStepIdx(0);
+    setPrompt(SCENARIOS[scenario].question);
+  }
+
+  function submitAnswer(answer: string) {
+    if (!practiceMode) return;
+
+    setSelectedAnswer(answer);
+    const correct = answer === SCENARIOS[scenario].answer;
+    setScore((prev) => ({
+      correct: prev.correct + (correct ? 1 : 0),
+      attempts: prev.attempts + 1,
+    }));
+    setPracticeMode(false);
+    setStepIdx(steps.length - 1);
+    setPrompt(
+      correct
+        ? `Correct. ${answer} is guaranteed to run in this scenario.`
+        : `Not quite. ${SCENARIOS[scenario].answer} is the guaranteed next block here.`
+    );
+  }
+
+  function blockState(blockKey: Exclude<BlockKey, null>) {
     if (!currentStep) return "inactive";
     if (currentStep.block === blockKey) {
       if (currentStep.throwAt === blockKey) return "throwing";
       return "active";
     }
-    // Past blocks are dimmed
+
     const order = ["try", "catch", "finally"];
     const currentOrder = order.indexOf(currentStep.block ?? "");
     const thisOrder = order.indexOf(blockKey);
@@ -135,96 +195,185 @@ export default function ExceptionsViz() {
     return "inactive";
   }
 
-  const stateStyles = {
-    inactive: "border-slate-600 bg-slate-800/50 opacity-40",
-    active: "",
-    throwing: "animate-pulse",
-    past: "opacity-60",
-  };
+  const accuracy =
+    score.attempts > 0 ? Math.round((score.correct / score.attempts) * 100) : null;
 
   return (
-    <div className="bg-slate-800 rounded-xl border border-slate-700 p-6">
-      <h3 className="text-slate-200 font-semibold text-lg mb-1">Exception Flow</h3>
-      <p className="text-slate-500 text-xs mb-4">
-        See how execution flows through try / catch / finally under different conditions.
-      </p>
-
-      {/* Scenario selector */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        {(Object.entries(SCENARIOS) as [Scenario, typeof SCENARIOS[Scenario]][]).map(([key, sc]) => (
-          <button key={key} onClick={() => { setScenario(key); reset(); }}
-            className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${scenario === key ? "bg-indigo-600 text-white" : "bg-slate-700 text-slate-400 hover:text-slate-200"}`}>
-            {sc.label}
-          </button>
-        ))}
-      </div>
-
-      <p className="text-slate-400 text-xs mb-4 italic">{SCENARIOS[scenario].description}</p>
-
-      {/* Flow diagram */}
-      <div className="flex gap-4 mb-4">
-        <div className="flex flex-col gap-2 flex-1">
-          {(["try", "catch", "finally"] as const).map((key) => {
-            const block = BLOCKS[key];
-            const state = blockState(key);
-            const isActive = state === "active" || state === "throwing";
-            return (
-              <div key={key}
-                className={`rounded-lg border-2 p-3 font-mono text-sm transition-all duration-300 ${
-                  isActive ? `${block.border} ${block.bg}` : stateStyles[state]
-                } ${stateStyles[state] === "animate-pulse" ? "animate-pulse border-rose-500 bg-rose-950/40" : ""}`}>
-                <span className={isActive ? block.color : "text-slate-500"}>{key} {"{"}</span>
-                {block.lines.map((line, i) => (
-                  <div key={i} className={`pl-4 ${isActive ? "text-slate-300" : "text-slate-600"}`}>{line}</div>
-                ))}
-                {state === "throwing" && (
-                  <div className="pl-4 text-rose-400 font-bold">{"throw e; // exception!"}</div>
-                )}
-                <span className={isActive ? block.color : "text-slate-500"}>{"}"}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Note panel */}
-        <div className="w-40 flex flex-col justify-center">
-          <div className={`rounded-lg border p-3 text-xs transition-all min-h-[60px] ${
-            currentStep ? "border-indigo-600 bg-indigo-950/30 text-slate-300" : "border-slate-700 text-slate-600"
-          }`}>
-            {currentStep ? currentStep.note : "Press Run or Step"}
-          </div>
-          {stepIdx === steps.length - 1 && (
-            <div className="mt-2 text-xs text-emerald-400 text-center">
-              {scenario === "rethrow" ? "Exception propagated" : "Complete"}
+    <VisualizationCard
+      title="Exception Flow Lab"
+      subtitle="Students compare normal flow, handled exceptions, and re-throws while predicting which block runs next."
+      objective="Students should understand that thrown exceptions redirect control into catch, but finally remains the reliable cleanup path."
+      accentClassName="from-rose-300/20 via-amber-300/10 to-transparent"
+      insights={
+        <div className="grid gap-3 md:grid-cols-4">
+          {missionState.map((mission) => (
+            <div
+              key={mission.label}
+              className={`rounded-2xl border px-4 py-3 text-sm ${
+                mission.done
+                  ? "border-emerald-700 bg-emerald-950/40 text-emerald-200"
+                  : "border-slate-700 bg-slate-950/70 text-slate-400"
+              }`}
+            >
+              <p className="font-medium">{mission.done ? "Complete" : "Checkpoint"}</p>
+              <p className="mt-1 leading-5">{mission.label}</p>
             </div>
-          )}
+          ))}
+        </div>
+      }
+    >
+      <div className="grid gap-5 xl:grid-cols-[1.35fr_0.95fr]">
+        <div className="rounded-[24px] border border-slate-800 bg-slate-950/80 p-5">
+          <div className="mb-4 flex flex-wrap gap-2">
+            {(Object.entries(SCENARIOS) as [Scenario, (typeof SCENARIOS)[Scenario]][]).map(
+              ([key, value]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setScenario(key);
+                    reset("Scenario changed. Start a new trace or answer the new prediction.");
+                  }}
+                  className={`rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+                    scenario === key
+                      ? "bg-cyan-400 text-slate-950"
+                      : "bg-slate-900 text-slate-300 hover:text-white"
+                  }`}
+                >
+                  {value.label}
+                </button>
+              )
+            )}
+          </div>
+
+          <p className="mb-4 text-sm text-slate-400">{SCENARIOS[scenario].description}</p>
+
+          <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="space-y-3">
+              {(["try", "catch", "finally"] as const).map((key) => {
+                const block = BLOCKS[key];
+                const state = blockState(key);
+                const isActive = state === "active" || state === "throwing";
+
+                return (
+                  <div
+                    key={key}
+                    className={`rounded-[20px] border-2 p-4 font-mono text-sm transition-all ${
+                      isActive
+                        ? `${block.border} ${block.bg}`
+                        : state === "past"
+                          ? "border-slate-700 bg-slate-900/60 opacity-70"
+                          : "border-slate-800 bg-slate-950/80 opacity-50"
+                    } ${state === "throwing" ? "animate-pulse" : ""}`}
+                  >
+                    <p className={isActive ? block.color : "text-slate-500"}>{block.label} {"{"}</p>
+                    {block.lines.map((line) => (
+                      <p
+                        key={line}
+                        className={`pl-4 ${isActive ? "text-slate-200" : "text-slate-600"}`}
+                      >
+                        {line}
+                      </p>
+                    ))}
+                    {state === "throwing" && (
+                      <p className="pl-4 text-rose-300">throw e; // control jumps</p>
+                    )}
+                    <p className={isActive ? block.color : "text-slate-500"}>{"}"}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="rounded-[20px] border border-slate-800 bg-slate-900/80 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Current Observation
+              </p>
+              <p className="mt-3 text-sm leading-6 text-slate-300">
+                {currentStep?.note ?? prompt}
+              </p>
+
+              <div className="mt-4 flex gap-1.5">
+                {steps.map((_, index) => (
+                  <div
+                    key={index}
+                    className={`h-1.5 flex-1 rounded-full ${
+                      index < stepIdx
+                        ? "bg-cyan-400"
+                        : index === stepIdx
+                          ? "bg-amber-300"
+                          : "bg-slate-700"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              onClick={runAuto}
+              disabled={running}
+              className="rounded-xl bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Watch Flow
+            </button>
+            <button
+              onClick={startPractice}
+              disabled={running}
+              className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Predict Next Block
+            </button>
+            <button
+              onClick={() =>
+                reset("Pick a scenario, then watch the execution path or predict which block runs next.")
+              }
+              className="rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-slate-500"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-[24px] border border-slate-800 bg-slate-950/80 p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Prediction Prompt
+            </p>
+            <p className="mt-3 text-sm leading-6 text-slate-300">{SCENARIOS[scenario].question}</p>
+
+            <div className="mt-4 grid gap-2">
+              {(["catch", "finally", "program continues"] as const).map((choice) => (
+                <button
+                  key={choice}
+                  onClick={() => submitAnswer(choice)}
+                  disabled={!practiceMode}
+                  className={`rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
+                    practiceMode
+                      ? "border-slate-700 bg-slate-900 text-slate-100 hover:border-cyan-400"
+                      : "border-slate-800 bg-slate-950 text-slate-500"
+                  } ${selectedAnswer === choice ? "border-cyan-400" : ""}`}
+                >
+                  {choice}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-slate-800 bg-slate-950/80 p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+              Practice Score
+            </p>
+            <p className="mt-3 text-sm text-slate-300">
+              {score.correct}/{score.attempts} correct{accuracy !== null ? ` (${accuracy}%)` : ""}
+            </p>
+            <div className="mt-4 space-y-3 text-sm leading-6 text-slate-400">
+              <p>`try` is the hopeful path, but one exception can interrupt the remaining lines immediately.</p>
+              <p>`catch` only runs when an exception of the right type is thrown and handled there.</p>
+              <p>`finally` is the dependable cleanup hook, even when the exception is re-thrown.</p>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Progress dots */}
-      <div className="flex gap-1.5 mb-4">
-        {steps.map((_, i) => (
-          <div key={i} className={`h-1.5 rounded-full transition-all ${
-            i < stepIdx ? "bg-indigo-500 w-4" : i === stepIdx ? "bg-amber-400 w-4" : "bg-slate-600 w-4"
-          }`} />
-        ))}
-      </div>
-
-      {/* Controls */}
-      <div className="flex gap-3">
-        <button onClick={runAuto} disabled={running}
-          className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-          Run
-        </button>
-        <button onClick={stepForward} disabled={running || stepIdx >= steps.length - 1}
-          className="bg-amber-700 hover:bg-amber-600 disabled:opacity-40 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-          Step
-        </button>
-        <button onClick={reset}
-          className="bg-slate-600 hover:bg-slate-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-          Reset
-        </button>
-      </div>
-    </div>
+    </VisualizationCard>
   );
 }

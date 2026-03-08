@@ -1,6 +1,6 @@
 export const meta = {
   slug: "oop-basics",
-  title: "OOP in Java – Part 1",
+  title: "OOP in Java",
   subtitle: "Classes, Objects & Encapsulation",
   description:
     "Master the core building blocks of Object-Oriented Programming: classes, objects, constructors, encapsulation, and ArrayList.",

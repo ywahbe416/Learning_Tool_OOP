@@ -7,11 +7,13 @@ import path from "path";
 import ConceptSection from "@/components/topic/ConceptSection";
 import VizRenderer from "@/components/topic/VizRenderer";
 import ChallengePanel from "@/components/topic/ChallengePanel";
+import TopicJourney from "@/components/topic/TopicJourney";
+import NextRecommendedTopic from "@/components/topic/NextRecommendedTopic";
 
 export async function generateStaticParams() {
   return topics
-    .filter((t) => t.status === "available")
-    .map((t) => ({ slug: t.slug }));
+    .filter((topic) => topic.status === "available")
+    .map((topic) => ({ slug: topic.slug }));
 }
 
 interface Props {
@@ -19,9 +21,9 @@ interface Props {
 }
 
 const difficultyColors = {
-  beginner: "bg-emerald-900 text-emerald-300",
-  intermediate: "bg-amber-900 text-amber-300",
-  advanced: "bg-red-900 text-red-300",
+  beginner: "border-emerald-700 bg-emerald-950/40 text-emerald-200",
+  intermediate: "border-amber-700 bg-amber-950/40 text-amber-200",
+  advanced: "border-rose-700 bg-rose-950/40 text-rose-200",
 };
 
 export default async function TopicPage({ params }: Props) {
@@ -32,53 +34,102 @@ export default async function TopicPage({ params }: Props) {
     notFound();
   }
 
-  const mdxPath = path.join(
-    process.cwd(),
-    "src/content/topics",
-    slug,
-    "concept.mdx"
-  );
+  const mdxPath = path.join(process.cwd(), "src/content/topics", slug, "concept.mdx");
   const mdxSource = await readFile(mdxPath, "utf-8");
 
   const challenge = challengeRegistry[slug] ?? null;
   const hasVisualization = vizSlugs.has(slug);
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
-      {/* Header */}
-      <div className="mb-8">
-        <a
-          href="/"
-          className="text-slate-500 hover:text-slate-300 text-sm transition-colors mb-4 inline-block"
-        >
-          ← All Topics
-        </a>
-        <div className="flex items-center gap-3 mb-2">
-          <span
-            className={`text-xs font-semibold px-2 py-1 rounded-full ${difficultyColors[topic.difficulty]}`}
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-12">
+      <section className="relative overflow-hidden rounded-[28px] border border-white/10 bg-slate-950/45 px-5 py-7 shadow-[0_24px_80px_rgba(2,6,23,0.38)] backdrop-blur-xl sm:px-7 md:rounded-[34px] md:px-9 md:py-8">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-r from-cyan-300/16 via-transparent to-amber-300/10" />
+        <div className="relative">
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-slate-400 transition-colors hover:text-cyan-200"
           >
-            {topic.difficulty}
-          </span>
-          <h1 className="text-3xl font-bold text-slate-100">{topic.title}</h1>
-        </div>
-        <p className="text-slate-400">{topic.subtitle}</p>
-      </div>
+            <span>←</span>
+            <span>Back to all topics</span>
+          </a>
 
-      {/* Layout */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {/* Left: Concept */}
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-8">
-          <ConceptSection source={mdxSource} />
+          <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${difficultyColors[topic.difficulty]}`}>
+                  {topic.difficulty}
+                </span>
+                <span className="max-w-full rounded-full border border-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                  {topic.tags.join(" • ")}
+                </span>
+              </div>
+              <h1 className="mt-5 text-3xl font-semibold leading-tight text-slate-50 sm:text-4xl md:text-5xl">
+                {topic.title}
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base md:text-lg md:leading-8">
+                {topic.subtitle}
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3 lg:w-[27rem]">
+              <HeaderMetric label="Mode" value="Read" detail="concept notes" />
+              <HeaderMetric label="Mode" value="Interact" detail="guided lab" />
+              <HeaderMetric label="Mode" value="Code" detail="Java challenge" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-8">
+        <TopicJourney
+          slug={slug}
+          hasVisualization={hasVisualization}
+          hasChallenge={Boolean(challenge)}
+        />
+      </section>
+
+      <section className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+        <div className="overflow-hidden rounded-[24px] border border-white/10 bg-slate-950/45 shadow-[0_20px_70px_rgba(2,6,23,0.28)] backdrop-blur-xl md:rounded-[30px]">
+          <div className="border-b border-white/10 px-7 py-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-cyan-300">
+              Concept Guide
+            </p>
+            <p className="mt-2 text-sm text-slate-400">
+              Read the explanation first, then use the lab and challenge to test the idea in motion.
+            </p>
+          </div>
+          <div className="px-5 py-6 sm:px-7 sm:py-7">
+            <ConceptSection source={mdxSource} />
+          </div>
         </div>
 
-        {/* Right: Visualization + Challenge */}
         <div className="flex flex-col gap-6">
           {hasVisualization && <VizRenderer slug={slug} />}
-          {challenge && (
-            <ChallengePanel challenge={challenge} topicSlug={slug} />
-          )}
+          {challenge && <ChallengePanel challenge={challenge} topicSlug={slug} />}
         </div>
-      </div>
+      </section>
+
+      <section className="mt-8">
+        <NextRecommendedTopic currentSlug={slug} />
+      </section>
+    </div>
+  );
+}
+
+function HeaderMetric({
+  label,
+  value,
+  detail,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+}) {
+  return (
+    <div className="rounded-[22px] border border-white/10 bg-slate-900/70 px-4 py-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">{label}</p>
+      <p className="mt-2 text-xl font-semibold text-slate-50">{value}</p>
+      <p className="mt-1 text-sm text-slate-400">{detail}</p>
     </div>
   );
 }

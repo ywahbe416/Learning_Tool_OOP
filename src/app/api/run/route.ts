@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { execFile } from "node:child_process";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { promisify } from "node:util";
 
 interface RunRequest {
   userCode: string;
@@ -12,13 +17,20 @@ interface TestResult {
   error?: string;
 }
 
-export async function POST(req: NextRequest) {
-  const { userCode, wrapperCodes, descriptions }: RunRequest = await req.json();
+const execFileAsync = promisify(execFile);
 
-  // Build one Java file: user's class(es) + Main class with all test cases
-  const testCaseBlocks = wrapperCodes.map((wrapper, i) => {
+function normalizeJavaSource(source: string) {
+  // The runner compiles everything as Main.java, so additional public top-level types
+  // must be downgraded to package-private to satisfy Java's filename rules.
+  return source.replace(/\bpublic\s+(class|interface|enum|record)\b/g, "$1");
+}
+
+function buildJavaSource(userCode: string, wrapperCodes: string[], descriptions: string[]) {
+  const normalizedUserCode = normalizeJavaSource(userCode);
+
+  const testCaseBlocks = wrapperCodes.map((wrapper, index) => {
     return `
-    // Test ${i + 1}: ${descriptions[i]}
+    // Test ${index + 1}: ${descriptions[index]}
     try {
       ${wrapper}
     } catch (Exception e) {
@@ -26,8 +38,8 @@ export async function POST(req: NextRequest) {
     }`;
   });
 
-  const javaSource = `
-${userCode}
+  return `
+${normalizedUserCode}
 
 public class Main {
   public static void main(String[] args) {
@@ -35,50 +47,76 @@ ${testCaseBlocks.join("\n")}
   }
 }
 `;
+}
 
-  let pistonRes: Response;
+async function executeJavaLocally(javaSource: string) {
+  const tempDir = await mkdtemp(path.join(os.tmpdir(), "ds-oop-java-"));
+  const filePath = path.join(tempDir, "Main.java");
+
   try {
-    pistonRes = await fetch("https://emkc.org/api/v2/piston/execute", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        language: "java",
-        version: "*",
-        files: [{ name: "Main.java", content: javaSource }],
-      }),
+    await writeFile(filePath, javaSource, "utf8");
+
+    await execFileAsync("javac", ["Main.java"], {
+      cwd: tempDir,
+      timeout: 10000,
     });
-  } catch {
+
+    const { stdout, stderr } = await execFileAsync("java", ["Main"], {
+      cwd: tempDir,
+      timeout: 10000,
+    });
+
+    return {
+      stdout: stdout ?? "",
+      stderr: stderr ?? "",
+    };
+  } finally {
+    await rm(tempDir, { recursive: true, force: true });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const { userCode, wrapperCodes, descriptions }: RunRequest = await req.json();
+  const javaSource = buildJavaSource(userCode, wrapperCodes, descriptions);
+
+  let executionOutput: { stdout: string; stderr: string };
+
+  try {
+    executionOutput = await executeJavaLocally(javaSource);
+  } catch (error) {
+    const message =
+      error instanceof Error && "stderr" in error
+        ? String((error as { stderr?: string }).stderr ?? error.message).trim()
+        : error instanceof Error
+          ? error.message
+          : "Local Java execution failed.";
+
     return NextResponse.json(
-      { error: "Could not reach the code execution service. Try again." },
+      { error: message || "Local Java execution failed." },
       { status: 502 }
     );
   }
 
-  if (!pistonRes.ok) {
-    return NextResponse.json(
-      { error: "Code execution service returned an error." },
-      { status: 502 }
-    );
+  const stderr = executionOutput.stderr.trim();
+  const stdout = executionOutput.stdout.trim();
+
+  if (stderr) {
+    return NextResponse.json({ compileError: stderr });
   }
 
-  const piston = await pistonRes.json();
-  const stderr: string = piston.run?.stderr ?? piston.compile?.stderr ?? "";
-  const stdout: string = piston.run?.stdout ?? "";
-
-  // Compile error
-  if (stderr.trim()) {
-    return NextResponse.json({ compileError: stderr.trim() });
-  }
-
-  // Parse stdout: one PASS or FAIL: <msg> line per test case
-  const lines = stdout.trim().split("\n");
-  const results: TestResult[] = wrapperCodes.map((_, i) => {
-    const line = (lines[i] ?? "").trim();
+  const lines = stdout ? stdout.split("\n") : [];
+  const results: TestResult[] = wrapperCodes.map((_, index) => {
+    const line = (lines[index] ?? "").trim();
     if (line === "PASS") {
-      return { description: descriptions[i], pass: true };
+      return { description: descriptions[index], pass: true };
     }
-    const msg = line.startsWith("FAIL: ") ? line.slice(6) : line || "No output";
-    return { description: descriptions[i], pass: false, error: msg };
+
+    const message = line.startsWith("FAIL: ") ? line.slice(6) : line || "No output";
+    return {
+      description: descriptions[index],
+      pass: false,
+      error: message,
+    };
   });
 
   return NextResponse.json({ results });

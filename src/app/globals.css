@@ -3,12 +3,172 @@
 @tailwind utilities;
 
 :root {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
+  --background: #07111f;
+  --foreground: #e7eef8;
+  --surface: #0c1a2d;
+  --surface-2: #10243b;
+  --line: rgba(148, 163, 184, 0.2);
+  --accent: #67e8f9;
+  --accent-warm: #fbbf24;
+}
+
+:root[data-theme="light"] {
+  --background: #edf6fb;
+  --foreground: #0f172a;
+  --surface: #ffffff;
+  --surface-2: #e6f1f7;
+  --line: rgba(15, 23, 42, 0.12);
+  --accent: #0891b2;
+  --accent-warm: #d97706;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+  background-image:
+    radial-gradient(circle at top left, rgba(103, 232, 249, 0.14), transparent 26%),
+    radial-gradient(circle at 85% 10%, rgba(251, 191, 36, 0.1), transparent 22%),
+    linear-gradient(180deg, #08111d 0%, #07111f 45%, #091423 100%);
+}
+
+:root[data-theme="light"] body {
+  background-image:
+    radial-gradient(circle at top left, rgba(8, 145, 178, 0.12), transparent 26%),
+    radial-gradient(circle at 85% 10%, rgba(217, 119, 6, 0.08), transparent 22%),
+    linear-gradient(180deg, #f8fcff 0%, #edf6fb 50%, #e8f3f9 100%);
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(103, 232, 249, 0.28);
+  color: #f8fafc;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(103, 232, 249, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(103, 232, 249, 0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out both;
+}
+
+.animate-soft-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+:root[data-theme="light"] .text-slate-50,
+:root[data-theme="light"] .text-slate-100,
+:root[data-theme="light"] .text-slate-200 {
+  color: #0f172a !important;
+}
+
+:root[data-theme="light"] .text-slate-300 {
+  color: #334155 !important;
+}
+
+:root[data-theme="light"] .text-slate-400 {
+  color: #475569 !important;
+}
+
+:root[data-theme="light"] .text-slate-500,
+:root[data-theme="light"] .text-slate-600 {
+  color: #64748b !important;
+}
+
+:root[data-theme="light"] .bg-slate-950,
+:root[data-theme="light"] .bg-slate-950\/25,
+:root[data-theme="light"] .bg-slate-950\/30,
+:root[data-theme="light"] .bg-slate-950\/35,
+:root[data-theme="light"] .bg-slate-950\/40,
+:root[data-theme="light"] .bg-slate-950\/45,
+:root[data-theme="light"] .bg-slate-950\/70,
+:root[data-theme="light"] .bg-slate-950\/80,
+:root[data-theme="light"] .bg-slate-950\/90 {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+}
+
+:root[data-theme="light"] .bg-slate-900,
+:root[data-theme="light"] .bg-slate-900\/90,
+:root[data-theme="light"] .bg-slate-900\/60,
+:root[data-theme="light"] .bg-slate-900\/70,
+:root[data-theme="light"] .bg-slate-900\/75,
+:root[data-theme="light"] .bg-slate-900\/80 {
+  background-color: rgba(240, 249, 255, 0.92) !important;
+}
+
+:root[data-theme="light"] .bg-slate-800,
+:root[data-theme="light"] .bg-slate-800\/50,
+:root[data-theme="light"] .bg-slate-800\/80 {
+  background-color: rgba(226, 238, 247, 0.92) !important;
+}
+
+:root[data-theme="light"] .border-slate-800,
+:root[data-theme="light"] .border-slate-700,
+:root[data-theme="light"] .border-slate-600,
+:root[data-theme="light"] .border-white\/10 {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+:root[data-theme="light"] .bg-white\/10 {
+  background-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:root[data-theme="light"] .prose {
+  color: #334155;
+}
+
+:root[data-theme="light"] .prose :where(h1, h2, h3, h4, strong, th) {
+  color: #0f172a !important;
+}
+
+:root[data-theme="light"] .prose :where(p, li, td, blockquote) {
+  color: #334155 !important;
+}
+
+:root[data-theme="light"] .prose :where(code) {
+  color: #0891b2 !important;
+  background-color: #edf6fb !important;
+}
+
+:root[data-theme="light"] .prose :where(pre) {
+  color: #0f172a !important;
+  background-color: #edf6fb !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+:root[data-theme="light"] .prose :where(hr) {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+:root[data-theme="light"] .prose :where(a) {
+  color: #0f766e !important;
+}
+
+:root[data-theme="light"] .prose :where(blockquote) {
+  color: #334155 !important;
+  border-color: rgba(8, 145, 178, 0.4) !important;
 }

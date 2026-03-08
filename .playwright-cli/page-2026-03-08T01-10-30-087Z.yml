@@ -1,0 +1,183 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Learning Studio DS & OOP" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - paragraph [ref=e6]: Learning Studio
+          - paragraph [ref=e7]: DS & OOP
+        - paragraph [ref=e8]: Visual labs and coding practice for core Java concepts
+    - main [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e12]:
+          - generic [ref=e13]:
+            - paragraph [ref=e14]: Interactive Course Hub
+            - heading "Learn DS&A and OOP through labs, motion, and code." [level=1] [ref=e15]
+            - paragraph [ref=e16]: Each topic combines concept notes, a guided visual activity, and a Java challenge so students can move from explanation to execution in one place.
+            - generic [ref=e17]:
+              - link "Browse Topics" [ref=e18] [cursor=pointer]:
+                - /url: "#topics"
+              - generic [ref=e19]: 0/8 topics completed
+          - generic [ref=e20]:
+            - generic [ref=e21]:
+              - paragraph [ref=e22]: Topics
+              - paragraph [ref=e23]: "8"
+              - paragraph [ref=e24]: Available now
+            - generic [ref=e25]:
+              - paragraph [ref=e26]: Experience
+              - paragraph [ref=e27]: 3-Part
+              - paragraph [ref=e28]: Concept, lab, challenge
+            - generic [ref=e29]:
+              - paragraph [ref=e30]: Focus
+              - paragraph [ref=e31]: Java
+              - paragraph [ref=e32]: Built around your course flow
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]:
+              - paragraph [ref=e36]: Topic Path
+              - heading "Choose a lab sequence" [level=2] [ref=e37]
+            - paragraph [ref=e38]: Start with the fundamentals, then move into recursion, collections, linked structures, and algorithms as the activities become more analytical.
+          - generic [ref=e39]:
+            - 'link "Unit 01 0/3 steps beginner OOP in Java – Part 1 Classes, Objects & Encapsulation Master the core building blocks of Object-Oriented Programming: classes, objects, constructors, encapsulation, and ArrayList. class object constructor encapsulation" [ref=e41] [cursor=pointer]':
+              - /url: /topics/oop-basics
+              - generic [ref=e42]:
+                - generic [ref=e43]:
+                  - generic [ref=e44]: Unit 01
+                  - generic [ref=e46]: 0/3 steps
+                - generic [ref=e47]:
+                  - generic [ref=e48]: beginner
+                  - heading "OOP in Java – Part 1" [level=3] [ref=e49]
+                  - paragraph [ref=e50]: Classes, Objects & Encapsulation
+                  - paragraph [ref=e51]: "Master the core building blocks of Object-Oriented Programming: classes, objects, constructors, encapsulation, and ArrayList."
+                - generic [ref=e52]:
+                  - generic [ref=e53]: class
+                  - generic [ref=e54]: object
+                  - generic [ref=e55]: constructor
+                  - generic [ref=e56]: encapsulation
+            - link "Unit 02 0/3 steps intermediate Advanced OOP Inheritance, Polymorphism & Composition Go deeper with inheritance, protected access, polymorphism (overriding & overloading), composition, and abstract classes. inheritance polymorphism abstract composition" [ref=e58] [cursor=pointer]:
+              - /url: /topics/advanced-oop
+              - generic [ref=e59]:
+                - generic [ref=e60]:
+                  - generic [ref=e61]: Unit 02
+                  - generic [ref=e63]: 0/3 steps
+                - generic [ref=e64]:
+                  - generic [ref=e65]: intermediate
+                  - heading "Advanced OOP" [level=3] [ref=e66]
+                  - paragraph [ref=e67]: Inheritance, Polymorphism & Composition
+                  - paragraph [ref=e68]: Go deeper with inheritance, protected access, polymorphism (overriding & overloading), composition, and abstract classes.
+                - generic [ref=e69]:
+                  - generic [ref=e70]: inheritance
+                  - generic [ref=e71]: polymorphism
+                  - generic [ref=e72]: abstract
+                  - generic [ref=e73]: composition
+            - link "Unit 03 0/3 steps beginner Exception Handling try/catch, throw & Custom Errors Learn to write robust code by handling errors gracefully with try/catch/finally, throwing exceptions, and creating custom error types. try-catch throw errors finally" [ref=e75] [cursor=pointer]:
+              - /url: /topics/exceptions
+              - generic [ref=e76]:
+                - generic [ref=e77]:
+                  - generic [ref=e78]: Unit 03
+                  - generic [ref=e80]: 0/3 steps
+                - generic [ref=e81]:
+                  - generic [ref=e82]: beginner
+                  - heading "Exception Handling" [level=3] [ref=e83]
+                  - paragraph [ref=e84]: try/catch, throw & Custom Errors
+                  - paragraph [ref=e85]: Learn to write robust code by handling errors gracefully with try/catch/finally, throwing exceptions, and creating custom error types.
+                - generic [ref=e86]:
+                  - generic [ref=e87]: try-catch
+                  - generic [ref=e88]: throw
+                  - generic [ref=e89]: errors
+                  - generic [ref=e90]: finally
+            - link "Unit 04 0/3 steps intermediate Recursion Base Cases, Call Stack & Classic Problems Understand how methods call themselves, how the call stack works in LIFO order, and solve classic problems like factorial, Fibonacci, and binary search. recursion call stack factorial fibonacci" [ref=e92] [cursor=pointer]:
+              - /url: /topics/recursion
+              - generic [ref=e93]:
+                - generic [ref=e94]:
+                  - generic [ref=e95]: Unit 04
+                  - generic [ref=e97]: 0/3 steps
+                - generic [ref=e98]:
+                  - generic [ref=e99]: intermediate
+                  - heading "Recursion" [level=3] [ref=e100]
+                  - paragraph [ref=e101]: Base Cases, Call Stack & Classic Problems
+                  - paragraph [ref=e102]: Understand how methods call themselves, how the call stack works in LIFO order, and solve classic problems like factorial, Fibonacci, and binary search.
+                - generic [ref=e103]:
+                  - generic [ref=e104]: recursion
+                  - generic [ref=e105]: call stack
+                  - generic [ref=e106]: factorial
+                  - generic [ref=e107]: fibonacci
+            - link "Unit 05 0/3 steps intermediate Collections Hierarchy, Comparable & Sorting Explore the Java Collections Framework hierarchy — List, Set, Queue, Map — and learn how to sort objects using Comparable and compareTo(). collections comparable sort map" [ref=e109] [cursor=pointer]:
+              - /url: /topics/collections
+              - generic [ref=e110]:
+                - generic [ref=e111]:
+                  - generic [ref=e112]: Unit 05
+                  - generic [ref=e114]: 0/3 steps
+                - generic [ref=e115]:
+                  - generic [ref=e116]: intermediate
+                  - heading "Collections" [level=3] [ref=e117]
+                  - paragraph [ref=e118]: Hierarchy, Comparable & Sorting
+                  - paragraph [ref=e119]: Explore the Java Collections Framework hierarchy — List, Set, Queue, Map — and learn how to sort objects using Comparable and compareTo().
+                - generic [ref=e120]:
+                  - generic [ref=e121]: collections
+                  - generic [ref=e122]: comparable
+                  - generic [ref=e123]: sort
+                  - generic [ref=e124]: map
+            - link "Unit 06 0/3 steps intermediate Linked Lists Singly, Doubly & Circular Understand how nodes chain together with pointers to form dynamic data structures. nodes pointers dynamic" [ref=e126] [cursor=pointer]:
+              - /url: /topics/linked-lists
+              - generic [ref=e127]:
+                - generic [ref=e128]:
+                  - generic [ref=e129]: Unit 06
+                  - generic [ref=e131]: 0/3 steps
+                - generic [ref=e132]:
+                  - generic [ref=e133]: intermediate
+                  - heading "Linked Lists" [level=3] [ref=e134]
+                  - paragraph [ref=e135]: Singly, Doubly & Circular
+                  - paragraph [ref=e136]: Understand how nodes chain together with pointers to form dynamic data structures.
+                - generic [ref=e137]:
+                  - generic [ref=e138]: nodes
+                  - generic [ref=e139]: pointers
+                  - generic [ref=e140]: dynamic
+            - link "Unit 07 0/3 steps intermediate Data Structures Stack, Queue, Map, Set, Tree, Heap & Graph Survey all the essential data structures — when to use each, their time complexities, and how they relate to one another. stack queue tree graph heap BST" [ref=e142] [cursor=pointer]:
+              - /url: /topics/data-structures
+              - generic [ref=e143]:
+                - generic [ref=e144]:
+                  - generic [ref=e145]: Unit 07
+                  - generic [ref=e147]: 0/3 steps
+                - generic [ref=e148]:
+                  - generic [ref=e149]: intermediate
+                  - heading "Data Structures" [level=3] [ref=e150]
+                  - paragraph [ref=e151]: Stack, Queue, Map, Set, Tree, Heap & Graph
+                  - paragraph [ref=e152]: Survey all the essential data structures — when to use each, their time complexities, and how they relate to one another.
+                - generic [ref=e153]:
+                  - generic [ref=e154]: stack
+                  - generic [ref=e155]: queue
+                  - generic [ref=e156]: tree
+                  - generic [ref=e157]: graph
+                  - generic [ref=e158]: heap
+                  - generic [ref=e159]: BST
+            - link "Unit 08 0/3 steps advanced Algorithms Search, Sort, Two Pointers, Hashing & Big-O Master algorithmic patterns — binary search, sorting trade-offs, two pointers, sliding window, hashing, backtracking, dynamic programming, and Big-O analysis. big-O sorting hashing dynamic programming" [ref=e161] [cursor=pointer]:
+              - /url: /topics/algorithms
+              - generic [ref=e162]:
+                - generic [ref=e163]:
+                  - generic [ref=e164]: Unit 08
+                  - generic [ref=e166]: 0/3 steps
+                - generic [ref=e167]:
+                  - generic [ref=e168]: advanced
+                  - heading "Algorithms" [level=3] [ref=e169]
+                  - paragraph [ref=e170]: Search, Sort, Two Pointers, Hashing & Big-O
+                  - paragraph [ref=e171]: Master algorithmic patterns — binary search, sorting trade-offs, two pointers, sliding window, hashing, backtracking, dynamic programming, and Big-O analysis.
+                - generic [ref=e172]:
+                  - generic [ref=e173]: big-O
+                  - generic [ref=e174]: sorting
+                  - generic [ref=e175]: hashing
+                  - generic [ref=e176]: dynamic programming
+        - generic [ref=e178]:
+          - generic [ref=e179]:
+            - paragraph [ref=e180]: Next Recommended
+            - paragraph [ref=e181]: Keep momentum by moving directly into the next topic that still has unfinished steps.
+          - generic [ref=e182]:
+            - generic [ref=e183]: Continue Your Path
+            - paragraph [ref=e184]: OOP in Java – Part 1
+            - paragraph [ref=e185]: Classes, Objects & Encapsulation
+            - paragraph [ref=e186]: "Master the core building blocks of Object-Oriented Programming: classes, objects, constructors, encapsulation, and ArrayList."
+            - link "Open OOP in Java – Part 1" [ref=e187] [cursor=pointer]:
+              - /url: /topics/oop-basics
+              - generic [ref=e188]: Open OOP in Java – Part 1
+              - generic [ref=e189]: →
+  - alert [ref=e190]
