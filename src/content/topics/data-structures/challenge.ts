@@ -1,16 +1,16 @@
 import type { Challenge } from "@/types/challenge";
 
 export const challenge: Challenge = {
-  title: "Implement a Stack and Queue",
+  title: "Build a Core Data Structure Toolkit",
   description:
-    "Build a Stack (LIFO) and a Queue (FIFO) from scratch using ArrayLists. Then implement isBalanced() — a classic stack application that checks if brackets are properly matched.",
-  starterCode: `import java.util.ArrayList;
+    "Implement key patterns from the lesson: Stack, Queue, HashMap frequency counting, HashSet duplicate detection, BST search, and BFS graph traversal.",
+  starterCode: `import java.util.*;
 
 public class Stack<T> {
     private ArrayList<T> items = new ArrayList<>();
 
     public void push(T item) {
-        // TODO: add item to top
+        // TODO: add item to the top
     }
 
     public T pop() {
@@ -54,66 +54,114 @@ class Queue<T> {
     }
 }
 
-class Brackets {
-    // Check if brackets are balanced: "({[]})" → true, "({[})" → false
-    public static boolean isBalanced(String str) {
-        // TODO: use a Stack<Character>
-        // Push opening brackets: ( { [
-        // For closing brackets: ) } ] — pop and check if it matches the opener
-        // Return true only if stack is empty at the end
+class Maps {
+    // Count occurrences of each value in arr
+    public static HashMap<Integer, Integer> frequencyCount(int[] arr) {
+        // TODO: use a HashMap<Integer, Integer>
+    }
+
+    // Return true if any value appears more than once
+    public static boolean hasDuplicates(int[] arr) {
+        // TODO: use a HashSet<Integer>
+    }
+}
+
+class TreeNode {
+    int value;
+    TreeNode left;
+    TreeNode right;
+
+    TreeNode(int value) {
+        this.value = value;
+    }
+}
+
+class Trees {
+    // Search a Binary Search Tree for target
+    public static boolean bstSearch(TreeNode root, int target) {
+        // TODO: use the BST property:
+        // target < node.value -> go left
+        // target > node.value -> go right
+    }
+}
+
+class Graphs {
+    // Breadth-first traversal order from start
+    public static ArrayList<String> bfsOrder(HashMap<String, List<String>> graph, String start) {
+        // TODO: use a queue and a visited set
+        // Return nodes in BFS visit order
     }
 }`,
   testCases: [
     {
-      description: "Stack: push and pop work (LIFO)",
+      description: "Stack: push, pop, and peek work with LIFO order",
       wrapperCode: `
 Stack<Integer> s = new Stack<>();
 s.push(1); s.push(2); s.push(3);
-boolean pass = s.pop() == 3 && s.pop() == 2 && s.size() == 1;
+boolean pass = s.peek() == 3 && s.pop() == 3 && s.pop() == 2 && s.size() == 1;
 System.out.println(pass ? "PASS" : "FAIL");
 `,
     },
     {
-      description: "Stack: isEmpty and peek work",
-      wrapperCode: `
-Stack<Integer> s = new Stack<>();
-if (!s.isEmpty()) { System.out.println("FAIL: should be empty"); return; }
-s.push(42);
-boolean pass = s.peek() == 42 && !s.isEmpty() && s.size() == 1;
-System.out.println(pass ? "PASS" : "FAIL");
-`,
-    },
-    {
-      description: "Queue: enqueue and dequeue work (FIFO)",
+      description: "Queue: enqueue, dequeue, and peek work with FIFO order",
       wrapperCode: `
 Queue<String> q = new Queue<>();
 q.enqueue("a"); q.enqueue("b"); q.enqueue("c");
-boolean pass = q.dequeue().equals("a") && q.dequeue().equals("b") && q.size() == 1;
+boolean pass = q.peek().equals("a") && q.dequeue().equals("a") && q.dequeue().equals("b") && q.size() == 1;
 System.out.println(pass ? "PASS" : "FAIL");
 `,
     },
     {
-      description: "Queue: isEmpty and peek work",
+      description: "frequencyCount counts values correctly with HashMap",
       wrapperCode: `
-Queue<Integer> q = new Queue<>();
-if (!q.isEmpty()) { System.out.println("FAIL: should be empty"); return; }
-q.enqueue(99);
-boolean pass = q.peek() == 99 && !q.isEmpty();
+HashMap<Integer, Integer> counts = Maps.frequencyCount(new int[]{4, 1, 4, 2, 4, 2});
+boolean pass = counts.get(4) == 3 && counts.get(2) == 2 && counts.get(1) == 1;
+System.out.println(pass ? "PASS" : "FAIL: got " + counts);
+`,
+    },
+    {
+      description: "hasDuplicates detects repeated values with HashSet",
+      wrapperCode: `
+boolean pass = Maps.hasDuplicates(new int[]{1, 2, 3, 2}) && !Maps.hasDuplicates(new int[]{5, 6, 7});
 System.out.println(pass ? "PASS" : "FAIL");
 `,
     },
     {
-      description: "isBalanced: balanced brackets return true",
+      description: "bstSearch finds existing values",
       wrapperCode: `
-boolean pass = Brackets.isBalanced("({[]})") && Brackets.isBalanced("") && Brackets.isBalanced("()[]{}");
+TreeNode root = new TreeNode(8);
+root.left = new TreeNode(3);
+root.right = new TreeNode(10);
+root.left.left = new TreeNode(1);
+root.left.right = new TreeNode(6);
+root.right.right = new TreeNode(14);
+boolean pass = Trees.bstSearch(root, 6) && Trees.bstSearch(root, 14);
 System.out.println(pass ? "PASS" : "FAIL");
 `,
     },
     {
-      description: "isBalanced: unbalanced brackets return false",
+      description: "bstSearch returns false for missing values",
       wrapperCode: `
-boolean pass = !Brackets.isBalanced("({[})]") && !Brackets.isBalanced("(((") && !Brackets.isBalanced(")");
-System.out.println(pass ? "PASS" : "FAIL");
+TreeNode root = new TreeNode(8);
+root.left = new TreeNode(3);
+root.right = new TreeNode(10);
+root.left.left = new TreeNode(1);
+root.left.right = new TreeNode(6);
+root.right.right = new TreeNode(14);
+System.out.println(!Trees.bstSearch(root, 7) ? "PASS" : "FAIL");
+`,
+    },
+    {
+      description: "bfsOrder traverses a graph level by level",
+      wrapperCode: `
+HashMap<String, List<String>> graph = new HashMap<>();
+graph.put("A", Arrays.asList("B", "C"));
+graph.put("B", Arrays.asList("A", "D"));
+graph.put("C", Arrays.asList("A", "E"));
+graph.put("D", Arrays.asList("B"));
+graph.put("E", Arrays.asList("C"));
+ArrayList<String> order = Graphs.bfsOrder(graph, "A");
+System.out.println(order.equals(new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E"))) ? "PASS" : "FAIL: got " + order);
 `,
     },
   ],

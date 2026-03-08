@@ -631,35 +631,44 @@ class Manager extends Employee {
     foundation: [
       "Data structures are chosen for operation costs, not just because they can store data.",
       "Stacks use LIFO behavior; queues use FIFO behavior.",
-      "A structure becomes more valuable when you connect it to a problem pattern like bracket matching.",
+      "HashMap and HashSet trade ordering for fast lookup and membership checks.",
+      "Trees and graphs model relationships that are not just linear sequences.",
     ],
     whatToNotice: [
       "The stack top lives at the end of the ArrayList in this implementation.",
       "The queue front leaves first even if it arrived earliest.",
-      "Balanced-bracket checking relies on matching the most recent opener first, which is a stack idea.",
+      "HashMap turns counting into a single pass over the input.",
+      "BST search uses left-or-right decisions instead of scanning every node.",
+      "BFS uses a queue so nodes are visited level by level.",
     ],
     commonMistakes: [
       "Implementing queue removal like stack removal and accidentally creating LIFO behavior.",
-      "Forgetting to return null on empty pop()/peek()/dequeue() when the challenge asks for that contract.",
-      "Checking bracket characters without verifying the opener and closer types actually match.",
+      "Using repeated list scans instead of a HashMap or HashSet when constant-time lookup is available.",
+      "Ignoring the BST ordering rule and searching both branches like a plain binary tree.",
+      "Forgetting a visited set in graph traversal and revisiting the same nodes forever.",
     ],
     workedExample: {
-      title: "Bracket matching with a stack",
-      summary: "Each closing bracket should match the most recent unmatched opener.",
-      code: `Stack<Character> stack = new Stack<>();
-for (char ch : str.toCharArray()) {
-    if (ch == '(' || ch == '{' || ch == '[') {
-        stack.push(ch);
-    } else {
-        Character top = stack.pop();
-        if (top == null) {
-            return false;
+      title: "BFS uses a queue",
+      summary: "Breadth-first search works because it expands the oldest frontier nodes first.",
+      code: `ArrayDeque<String> frontier = new ArrayDeque<>();
+HashSet<String> visited = new HashSet<>();
+ArrayList<String> order = new ArrayList<>();
+
+frontier.addLast(start);
+visited.add(start);
+
+while (!frontier.isEmpty()) {
+    String node = frontier.removeFirst();
+    order.add(node);
+    for (String neighbor : graph.get(node)) {
+        if (visited.add(neighbor)) {
+            frontier.addLast(neighbor);
         }
     }
 }`,
       takeaways: [
-        "The most recent opener must be checked first, which is exactly LIFO behavior.",
-        "An early closing bracket should fail immediately if the stack is empty.",
+        "A queue preserves discovery order, which is why BFS explores by layers.",
+        "The visited set prevents cycles from causing repeated work.",
       ],
     },
     conceptChecks: [
@@ -675,90 +684,111 @@ for (char ch : str.toCharArray()) {
           "Stacks are LIFO: last in, first out.",
       },
       {
-        prompt: "Why is a stack the right tool for bracket matching?",
+        prompt: "Why is HashSet useful for duplicate detection?",
         options: [
-          "Because the newest opening bracket must be matched first",
-          "Because brackets are always sorted",
-          "Because queues can only store strings",
+          "Because it keeps values in sorted order",
+          "Because add/contains make repeated membership checks fast",
+          "Because it stores key-value pairs like HashMap",
+        ],
+        correctIndex: 1,
+        explanation:
+          "A set is ideal for have-I-seen-this-before checks because membership is near O(1) on average.",
+      },
+      {
+        prompt: "Why does BFS use a queue instead of a stack?",
+        options: [
+          "Because BFS should process nodes in discovery order, layer by layer",
+          "Because graphs can only store queue objects",
+          "Because queues automatically avoid duplicates",
         ],
         correctIndex: 0,
         explanation:
-          "The closing bracket must match the most recent unmatched opener, which is a LIFO pattern.",
+          "A queue removes the oldest discovered node first, which is exactly how breadth-first exploration works.",
       },
     ],
     compileHints: [
-      "Generic class headers must stay consistent: Stack<T> and Queue<T> each need matching return and parameter types.",
-      "Brackets.isBalanced(...) is a static method inside a separate class, so keep its braces separate from Stack and Queue.",
-      "If the file stops compiling after one class, check that every class body was fully closed before the next one started.",
+      "This file defines several classes, so one missing brace or return can break everything that follows it.",
+      "Generic class headers must stay consistent: Stack<T> and Queue<T> need matching parameter and return types.",
+      "Keep the java.util.* import because the toolkit now uses HashMap, HashSet, ArrayDeque, ArrayList, and List.",
     ],
     challengeHints: [
       {
-        title: "Implementing stack behavior",
-        matchText: ["stack:", "lifo", "peek work"],
+        title: "Implementing stack and queue behavior",
+        matchText: ["stack:", "queue:", "lifo", "fifo", "peek work", "dequeue"],
         levels: [
-          "In this design, the top of the stack is the end of the ArrayList.",
-          "push adds to items, pop removes items.size() - 1, and peek reads that same index without removal.",
-          "When the stack is empty, pop() and peek() should return null instead of calling remove/get on index -1.",
+          "Use the ArrayList ends intentionally: the stack removes the newest item, the queue removes the oldest item.",
+          "For the stack, push adds to the end and pop/peek use items.size() - 1. For the queue, dequeue/peek use index 0.",
+          "When either structure is empty, return null before calling remove() or get() on an invalid index.",
         ],
       },
       {
-        title: "Implementing queue behavior",
-        matchText: ["queue:", "fifo"],
+        title: "HashMap and HashSet utilities",
+        matchText: ["frequencycount", "hashmap", "hasduplicates", "hashset"],
         levels: [
-          "Queues remove the oldest item, not the newest one.",
-          "enqueue adds to the end, but dequeue and peek should look at index 0.",
-          "If dequeue is returning the newest value first, you are removing from the wrong end of the list.",
+          "frequencyCount is an accumulation problem; hasDuplicates is a membership problem.",
+          "Use getOrDefault(value, 0) + 1 for counting, and use seen.add(value) to detect the first repeated value.",
+          "If add() on the set returns false, that value was already present and the array has a duplicate.",
         ],
       },
       {
-        title: "Balanced bracket checking",
-        matchText: ["isbalanced", "balanced brackets", "unbalanced brackets"],
+        title: "BST search decisions",
+        matchText: ["bstsearch", "existing values", "missing values"],
         levels: [
-          "You need one rule for openers and another for closers.",
-          "Push opener characters. On a closer, pop and verify the pair matches: (), {}, or [].",
-          "The string is balanced only if every closer matched correctly and the stack is empty at the end.",
+          "A BST lets you choose exactly one branch at each node.",
+          "If target < node.value go left; if target > node.value go right; if equal return true.",
+          "This should be a single path down the tree, not a search of both subtrees.",
+        ],
+      },
+      {
+        title: "Breadth-first graph traversal",
+        matchText: ["bfsorder", "graph level by level"],
+        levels: [
+          "BFS needs both a queue for frontier order and a visited set for cycle safety.",
+          "Start by enqueueing start, then repeatedly remove from the front, record the node, and enqueue unseen neighbors.",
+          "If the visit order is wrong, check whether you accidentally used stack behavior or forgot to mark neighbors visited when enqueuing them.",
         ],
       },
     ],
     reflectionPrompt:
-      "Which problem in this topic was about the structure itself, and which one was about choosing the right structure for an algorithm?",
+      "Which part of this toolkit was about implementing a structure, and which part was about choosing the right structure for a problem?",
     reviewPrompt:
-      "Give one real programming task that fits a stack better than a queue, and explain why.",
+      "Pick one task for HashMap, one for HashSet, and one for BFS, then explain why each structure is the right fit.",
   },
   algorithms: {
     prerequisites: ["recursion", "data-structures"],
     foundation: [
       "An algorithm is not just code that works; it is a strategy with a cost profile.",
       "Choosing the right pattern often matters more than micro-optimizing syntax.",
-      "You should connect each algorithm to the shape of problem it solves well.",
+      "Search, pointer, hashing, sorting, and DP patterns each solve different problem shapes.",
     ],
     whatToNotice: [
-      "Binary search depends on sorted data and shrinking bounds.",
-      "Two Sum becomes fast when a HashMap remembers earlier values.",
+      "Linear search works anywhere, while binary search only works when sorted order lets you discard half the search space.",
+      "Two pointers depends on sorted input; HashMap-based Two Sum does not.",
       "Sliding window and merge sort both avoid repeated full rescans of the same data.",
+      "Dynamic programming reuses earlier answers instead of recomputing them.",
     ],
     commonMistakes: [
       "Using binary search on unsorted input.",
+      "Trying to use two pointers on an unsorted array without sorting first.",
       "Updating the HashMap in the wrong order and pairing an element with itself accidentally.",
       "Mutating the input array when the challenge asks for a new sorted array.",
+      "Writing the DP recurrence without seeding the base cases first.",
     ],
     workedExample: {
-      title: "Binary search mindset",
-      summary: "Keep a valid search interval and cut it in half each round.",
-      code: `int low = 0;
-int high = arr.length - 1;
+      title: "Climb stairs with DP",
+      summary: "Store smaller answers once, then build the larger answer from them.",
+      code: `int[] dp = new int[n + 1];
+dp[0] = 1;
+dp[1] = 1;
 
-while (low <= high) {
-    int mid = (low + high) / 2;
-    if (arr[mid] == target) return mid;
-    if (arr[mid] < target) low = mid + 1;
-    else high = mid - 1;
+for (int i = 2; i <= n; i++) {
+    dp[i] = dp[i - 1] + dp[i - 2];
 }
 
-return -1;`,
+return dp[n];`,
       takeaways: [
-        "Correct bound updates matter more than the exact loop syntax.",
-        "The algorithm works only because sorted order tells you which half to discard.",
+        "Dynamic programming starts by locking in the base cases.",
+        "Each new answer reuses earlier answers instead of recomputing the whole recursion tree.",
       ],
     },
     conceptChecks: [
@@ -774,15 +804,26 @@ return -1;`,
           "The map remembers values you have already seen so you can find the complement in near O(1) time.",
       },
       {
-        prompt: "Why must mergeSort return a new array in this challenge?",
+        prompt: "When is the two-pointer technique a strong fit?",
         options: [
-          "Because the tests also check that the original input stays unchanged",
-          "Because Java arrays cannot be modified",
-          "Because merge sort only works on linked lists",
+          "When the array is sorted and you want a pair or range with moving boundaries",
+          "When you need to memoize recursive subproblems",
+          "When you need key-value lookup by complement",
         ],
         correctIndex: 0,
         explanation:
-          "The challenge contract includes non-mutation, so the algorithm must preserve the original input array.",
+          "Two pointers works because sorted order tells you how to move left or right after each comparison.",
+      },
+      {
+        prompt: "Why does climbStairs fit dynamic programming?",
+        options: [
+          "Because each answer depends on smaller overlapping subproblems",
+          "Because it needs a queue to visit states level by level",
+          "Because binary search can split the stairs in half",
+        ],
+        correctIndex: 0,
+        explanation:
+          "The recurrence uses answers to smaller inputs repeatedly, so caching or tabulating those values avoids recomputation.",
       },
     ],
     compileHints: [
@@ -792,21 +833,21 @@ return -1;`,
     ],
     challengeHints: [
       {
-        title: "Binary search bounds",
-        matchText: ["binarysearch", "missing element", "sorted array"],
+        title: "Linear and binary search",
+        matchText: ["linearsearch", "binarysearch", "sorted array", "missing element"],
         levels: [
-          "Binary search succeeds only when low and high always describe the remaining valid interval.",
-          "If arr[mid] < target, move low to mid + 1. If arr[mid] > target, move high to mid - 1.",
-          "Returning -1 should happen only after the loop ends, not on the first mismatch at mid.",
+          "Linear search checks every index in order. Binary search keeps shrinking a valid low/high window.",
+          "For binary search, if arr[mid] < target move low to mid + 1; if arr[mid] > target move high to mid - 1.",
+          "Returning -1 should happen only after the scan or the search window is exhausted, not on the first mismatch.",
         ],
       },
       {
-        title: "Two Sum with a HashMap",
-        matchText: ["twosum", "hashmap", "indices"],
+        title: "Two pointers versus hashing",
+        matchText: ["twosumsorted", "two pointers", "hashmap on unsorted input", "twosum uses hashmap"],
         levels: [
-          "At each element, ask whether its complement has already been seen.",
-          "Compute complement = target - nums[i], check the map first, then store nums[i] -> i.",
-          "Checking before storing prevents an element from pairing with itself at the same index.",
+          "The sorted version should use left and right pointers. The unsorted version should use a HashMap.",
+          "For twoSumSorted, compare arr[left] + arr[right] and move one pointer inward. For twoSum, compute the complement and check the map first.",
+          "The map solution should store value -> index after the complement check so one element does not pair with itself.",
         ],
       },
       {
@@ -818,11 +859,20 @@ return -1;`,
           "For mergeSort, return the original array when length <= 1, recurse on copies of each half, then merge into a new array.",
         ],
       },
+      {
+        title: "Dynamic programming recurrence",
+        matchText: ["climbstairs", "dynamic programming recurrence"],
+        levels: [
+          "climbStairs has the same recurrence shape as Fibonacci, but built bottom-up here.",
+          "Seed the base cases first, then each dp[i] should equal dp[i - 1] + dp[i - 2].",
+          "If the answers drift, check the first two values. The whole table depends on those base cases being correct.",
+        ],
+      },
     ],
     reflectionPrompt:
       "Which algorithmic pattern in this challenge felt most reusable for future problems, and what clue would tell you to choose it again?",
     reviewPrompt:
-      "Name one clue that should make you think of binary search, one clue for HashMap, and one clue for sliding window.",
+      "Name one clue that should make you think of binary search, two pointers, HashMap, and dynamic programming.",
   },
 };
 

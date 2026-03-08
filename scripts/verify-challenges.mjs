@@ -519,50 +519,67 @@ class LinkedList {
   {
     slug: "data-structures",
     descriptions: [
-      "Stack: push and pop work (LIFO)",
-      "Stack: isEmpty and peek work",
-      "Queue: enqueue and dequeue work (FIFO)",
-      "Queue: isEmpty and peek work",
-      "isBalanced: balanced brackets return true",
-      "isBalanced: unbalanced brackets return false",
+      "Stack: push, pop, and peek work with LIFO order",
+      "Queue: enqueue, dequeue, and peek work with FIFO order",
+      "frequencyCount counts values correctly with HashMap",
+      "hasDuplicates detects repeated values with HashSet",
+      "bstSearch finds existing values",
+      "bstSearch returns false for missing values",
+      "bfsOrder traverses a graph level by level",
     ],
     wrapperCodes: [
       `
 Stack<Integer> s = new Stack<>();
 s.push(1); s.push(2); s.push(3);
-boolean pass = s.pop() == 3 && s.pop() == 2 && s.size() == 1;
-System.out.println(pass ? "PASS" : "FAIL");
-`,
-      `
-Stack<Integer> s = new Stack<>();
-if (!s.isEmpty()) { System.out.println("FAIL: should be empty"); return; }
-s.push(42);
-boolean pass = s.peek() == 42 && !s.isEmpty() && s.size() == 1;
+boolean pass = s.peek() == 3 && s.pop() == 3 && s.pop() == 2 && s.size() == 1;
 System.out.println(pass ? "PASS" : "FAIL");
 `,
       `
 Queue<String> q = new Queue<>();
 q.enqueue("a"); q.enqueue("b"); q.enqueue("c");
-boolean pass = q.dequeue().equals("a") && q.dequeue().equals("b") && q.size() == 1;
+boolean pass = q.peek().equals("a") && q.dequeue().equals("a") && q.dequeue().equals("b") && q.size() == 1;
 System.out.println(pass ? "PASS" : "FAIL");
 `,
       `
-Queue<Integer> q = new Queue<>();
-if (!q.isEmpty()) { System.out.println("FAIL: should be empty"); return; }
-q.enqueue(99);
-boolean pass = q.peek() == 99 && !q.isEmpty();
+HashMap<Integer, Integer> counts = Maps.frequencyCount(new int[]{4, 1, 4, 2, 4, 2});
+boolean pass = counts.get(4) == 3 && counts.get(2) == 2 && counts.get(1) == 1;
+System.out.println(pass ? "PASS" : "FAIL: got " + counts);
+`,
+      `
+boolean pass = Maps.hasDuplicates(new int[]{1, 2, 3, 2}) && !Maps.hasDuplicates(new int[]{5, 6, 7});
 System.out.println(pass ? "PASS" : "FAIL");
 `,
       `
-boolean pass = Brackets.isBalanced("({[]})") && Brackets.isBalanced("") && Brackets.isBalanced("()[]{}");
+TreeNode root = new TreeNode(8);
+root.left = new TreeNode(3);
+root.right = new TreeNode(10);
+root.left.left = new TreeNode(1);
+root.left.right = new TreeNode(6);
+root.right.right = new TreeNode(14);
+boolean pass = Trees.bstSearch(root, 6) && Trees.bstSearch(root, 14);
 System.out.println(pass ? "PASS" : "FAIL");
 `,
       `
-boolean pass = !Brackets.isBalanced("({[})]") && !Brackets.isBalanced("(((") && !Brackets.isBalanced(")");
-System.out.println(pass ? "PASS" : "FAIL");
+TreeNode root = new TreeNode(8);
+root.left = new TreeNode(3);
+root.right = new TreeNode(10);
+root.left.left = new TreeNode(1);
+root.left.right = new TreeNode(6);
+root.right.right = new TreeNode(14);
+System.out.println(!Trees.bstSearch(root, 7) ? "PASS" : "FAIL");
+`,
+      `
+HashMap<String, List<String>> graph = new HashMap<>();
+graph.put("A", Arrays.asList("B", "C"));
+graph.put("B", Arrays.asList("A", "D"));
+graph.put("C", Arrays.asList("A", "E"));
+graph.put("D", Arrays.asList("B"));
+graph.put("E", Arrays.asList("C"));
+ArrayList<String> order = Graphs.bfsOrder(graph, "A");
+System.out.println(order.equals(new ArrayList<>(Arrays.asList("A", "B", "C", "D", "E"))) ? "PASS" : "FAIL: got " + order);
 `,
     ],
-    userCode: `import java.util.ArrayList;
+    userCode: `import java.util.*;
 
 public class Stack<T> {
     private ArrayList<T> items = new ArrayList<>();
@@ -616,38 +633,93 @@ class Queue<T> {
     }
 }
 
-class Brackets {
-    public static boolean isBalanced(String str) {
-        Stack<Character> stack = new Stack<>();
-        for (int i = 0; i < str.length(); i++) {
-            char ch = str.charAt(i);
-            if (ch == '(' || ch == '{' || ch == '[') {
-                stack.push(ch);
-            } else if (ch == ')' || ch == '}' || ch == ']') {
-                Character open = stack.pop();
-                if (open == null) return false;
-                if ((ch == ')' && open != '(') ||
-                    (ch == '}' && open != '{') ||
-                    (ch == ']' && open != '[')) {
-                    return false;
+class Maps {
+    public static HashMap<Integer, Integer> frequencyCount(int[] arr) {
+        HashMap<Integer, Integer> counts = new HashMap<>();
+        for (int value : arr) {
+            counts.put(value, counts.getOrDefault(value, 0) + 1);
+        }
+        return counts;
+    }
+
+    public static boolean hasDuplicates(int[] arr) {
+        HashSet<Integer> seen = new HashSet<>();
+        for (int value : arr) {
+            if (!seen.add(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+class TreeNode {
+    int value;
+    TreeNode left;
+    TreeNode right;
+
+    TreeNode(int value) {
+        this.value = value;
+    }
+}
+
+class Trees {
+    public static boolean bstSearch(TreeNode root, int target) {
+        TreeNode current = root;
+        while (current != null) {
+            if (target == current.value) {
+                return true;
+            }
+            current = target < current.value ? current.left : current.right;
+        }
+        return false;
+    }
+}
+
+class Graphs {
+    public static ArrayList<String> bfsOrder(HashMap<String, List<String>> graph, String start) {
+        ArrayList<String> order = new ArrayList<>();
+        if (!graph.containsKey(start)) {
+            return order;
+        }
+
+        HashSet<String> visited = new HashSet<>();
+        ArrayDeque<String> frontier = new ArrayDeque<>();
+        frontier.addLast(start);
+        visited.add(start);
+
+        while (!frontier.isEmpty()) {
+            String node = frontier.removeFirst();
+            order.add(node);
+            for (String neighbor : graph.getOrDefault(node, Collections.emptyList())) {
+                if (visited.add(neighbor)) {
+                    frontier.addLast(neighbor);
                 }
             }
         }
-        return stack.isEmpty();
+
+        return order;
     }
 }`,
   },
   {
     slug: "algorithms",
     descriptions: [
+      "linearSearch works on unsorted arrays",
       "binarySearch finds element in sorted array",
       "binarySearch returns -1 for missing element",
-      "twoSum finds correct indices using HashMap",
-      "twoSum handles non-adjacent pairs",
+      "twoSumSorted uses two pointers on sorted input",
+      "twoSum uses HashMap on unsorted input",
       "maxWindowSum finds maximum window",
       "mergeSort returns sorted array without mutating input",
+      "climbStairs uses dynamic programming recurrence",
     ],
     wrapperCodes: [
+      `
+boolean pass = Algorithms.linearSearch(new int[]{9, 4, 2, 7}, 2) == 2
+            && Algorithms.linearSearch(new int[]{9, 4, 2, 7}, 8) == -1;
+System.out.println(pass ? "PASS" : "FAIL");
+`,
       `
 int[] arr = {1, 3, 5, 7, 9, 11, 13};
 boolean pass = Algorithms.binarySearch(arr, 7) == 3 && Algorithms.binarySearch(arr, 1) == 0;
@@ -659,8 +731,8 @@ boolean pass = Algorithms.binarySearch(new int[]{1,3,5,7}, 4) == -1
 System.out.println(pass ? "PASS" : "FAIL");
 `,
       `
-int[] result = Algorithms.twoSum(new int[]{2, 7, 11, 15}, 9);
-boolean pass = result != null && result[0] == 0 && result[1] == 1;
+int[] result = Algorithms.twoSumSorted(new int[]{1, 2, 3, 4, 6}, 6);
+boolean pass = result.length == 2 && result[0] == 1 && result[1] == 3;
 System.out.println(pass ? "PASS" : "FAIL: got " + Arrays.toString(result));
 `,
       `
@@ -681,10 +753,23 @@ boolean sortedOk = Arrays.equals(sorted, expected);
 boolean notMutated = input[0] == 38;
 System.out.println(sortedOk && notMutated ? "PASS" : "FAIL: sorted=" + Arrays.toString(sorted));
 `,
+      `
+boolean pass = Algorithms.climbStairs(1) == 1
+            && Algorithms.climbStairs(2) == 2
+            && Algorithms.climbStairs(5) == 8;
+System.out.println(pass ? "PASS" : "FAIL");
+`,
     ],
     userCode: `import java.util.*;
 
 public class Algorithms {
+    public static int linearSearch(int[] arr, int target) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == target) return i;
+        }
+        return -1;
+    }
+
     public static int binarySearch(int[] arr, int target) {
         int low = 0;
         int high = arr.length - 1;
@@ -695,6 +780,23 @@ public class Algorithms {
             else high = mid - 1;
         }
         return -1;
+    }
+
+    public static int[] twoSumSorted(int[] arr, int target) {
+        int left = 0;
+        int right = arr.length - 1;
+        while (left < right) {
+            int sum = arr[left] + arr[right];
+            if (sum == target) {
+                return new int[]{left, right};
+            }
+            if (sum < target) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+        return new int[]{};
     }
 
     public static int[] twoSum(int[] nums, int target) {
@@ -739,6 +841,17 @@ public class Algorithms {
         while (i < left.length) merged[k++] = left[i++];
         while (j < right.length) merged[k++] = right[j++];
         return merged;
+    }
+
+    public static int climbStairs(int n) {
+        if (n <= 1) return 1;
+        int[] dp = new int[n + 1];
+        dp[0] = 1;
+        dp[1] = 1;
+        for (int i = 2; i <= n; i++) {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[n];
     }
 }`,
   },

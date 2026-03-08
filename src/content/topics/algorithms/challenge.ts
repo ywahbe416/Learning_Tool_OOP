@@ -1,44 +1,68 @@
 import type { Challenge } from "@/types/challenge";
 
 export const challenge: Challenge = {
-  title: "Core Algorithm Patterns",
+  title: "Implement Core Algorithm Patterns",
   description:
-    "Implement four essential patterns: binary search O(log n), Two Sum with HashMap O(n), max sliding window sum, and merge sort. Each tests a different algorithmic thinking pattern.",
+    "Cover the main strategies from the lesson: linear search, binary search, two pointers, hashing, sliding window, merge sort, and dynamic programming.",
   starterCode: `import java.util.*;
 
 public class Algorithms {
 
-    // 1. Binary Search — O(log n) — sorted array only
-    // Return the INDEX of target, or -1 if not found
+    // 1. Linear Search - O(n) - works on unsorted arrays
+    // Return the index of target, or -1 if not found
+    public static int linearSearch(int[] arr, int target) {
+        // TODO: scan left to right
+    }
+
+    // 2. Binary Search - O(log n) - sorted array only
+    // Return the index of target, or -1 if not found
     public static int binarySearch(int[] arr, int target) {
         // TODO: iterative approach with low/high pointers
     }
 
-    // 2. Two Sum — find INDICES of two numbers that sum to target — O(n)
-    // Use a HashMap for O(1) lookup
-    // e.g. twoSum(new int[]{2,7,11,15}, 9) → [0, 1]
+    // 3. Two Pointers - sorted array only
+    // Return the indices of a pair that sums to target, or an empty array if none exist
+    public static int[] twoSumSorted(int[] arr, int target) {
+        // TODO: use left and right pointers
+    }
+
+    // 4. Hashing pattern - unsorted array
+    // Return the indices of a pair that sums to target
     public static int[] twoSum(int[] nums, int target) {
-        // TODO: store value → index in HashMap as you iterate
+        // TODO: use a HashMap for O(1) lookup
     }
 
-    // 3. Max Sliding Window Sum — O(n)
-    // Find the maximum sum of any contiguous subarray of size k
-    // e.g. maxWindowSum(new int[]{2,1,5,1,3,2}, 3) → 9
+    // 5. Sliding Window - O(n)
+    // Return the maximum sum of any contiguous subarray of size k
     public static int maxWindowSum(int[] arr, int k) {
-        // TODO: compute first window, then slide: add next element, subtract first
+        // TODO: compute first window, then slide by add/subtract
     }
 
-    // 4. Merge Sort — O(n log n) — return a NEW sorted array, do not mutate input
+    // 6. Merge Sort - O(n log n)
+    // Return a NEW sorted array without mutating the input
     public static int[] mergeSort(int[] arr) {
-        // TODO: base case arr.length <= 1, split, sort each half, merge
+        // TODO: split, recursively sort, then merge
     }
 
-    // Helper for mergeSort — merge two sorted arrays
     private static int[] merge(int[] left, int[] right) {
-        // TODO: classic merge — compare heads, append remainder
+        // TODO: merge two sorted arrays into one sorted result
+    }
+
+    // 7. Dynamic Programming
+    // Return the number of ways to climb n stairs if you can take 1 or 2 steps
+    public static int climbStairs(int n) {
+        // TODO: bottom-up DP
     }
 }`,
   testCases: [
+    {
+      description: "linearSearch works on unsorted arrays",
+      wrapperCode: `
+boolean pass = Algorithms.linearSearch(new int[]{9, 4, 2, 7}, 2) == 2
+            && Algorithms.linearSearch(new int[]{9, 4, 2, 7}, 8) == -1;
+System.out.println(pass ? "PASS" : "FAIL");
+`,
+    },
     {
       description: "binarySearch finds element in sorted array",
       wrapperCode: `
@@ -56,15 +80,15 @@ System.out.println(pass ? "PASS" : "FAIL");
 `,
     },
     {
-      description: "twoSum finds correct indices using HashMap",
+      description: "twoSumSorted uses two pointers on sorted input",
       wrapperCode: `
-int[] result = Algorithms.twoSum(new int[]{2, 7, 11, 15}, 9);
-boolean pass = result != null && result[0] == 0 && result[1] == 1;
+int[] result = Algorithms.twoSumSorted(new int[]{1, 2, 3, 4, 6}, 6);
+boolean pass = result.length == 2 && result[0] == 1 && result[1] == 3;
 System.out.println(pass ? "PASS" : "FAIL: got " + Arrays.toString(result));
 `,
     },
     {
-      description: "twoSum handles non-adjacent pairs",
+      description: "twoSum uses HashMap on unsorted input",
       wrapperCode: `
 int[] result = Algorithms.twoSum(new int[]{3, 2, 4}, 6);
 boolean pass = result != null && result[0] == 1 && result[1] == 2;
@@ -88,6 +112,15 @@ int[] expected = {3, 9, 10, 27, 38, 43, 82};
 boolean sortedOk = Arrays.equals(sorted, expected);
 boolean notMutated = input[0] == 38;
 System.out.println(sortedOk && notMutated ? "PASS" : "FAIL: sorted=" + Arrays.toString(sorted));
+`,
+    },
+    {
+      description: "climbStairs uses dynamic programming recurrence",
+      wrapperCode: `
+boolean pass = Algorithms.climbStairs(1) == 1
+            && Algorithms.climbStairs(2) == 2
+            && Algorithms.climbStairs(5) == 8;
+System.out.println(pass ? "PASS" : "FAIL");
 `,
     },
   ],

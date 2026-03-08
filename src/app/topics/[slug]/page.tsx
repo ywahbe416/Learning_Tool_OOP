@@ -9,7 +9,6 @@ import VizRenderer from "@/components/topic/VizRenderer";
 import ChallengePanel from "@/components/topic/ChallengePanel";
 import TopicJourney from "@/components/topic/TopicJourney";
 import NextRecommendedTopic from "@/components/topic/NextRecommendedTopic";
-import LearningSupport from "@/components/topic/LearningSupport";
 import { getLessonSupport } from "@/lib/lesson-support";
 
 export async function generateStaticParams() {
@@ -90,12 +89,6 @@ export default async function TopicPage({ params }: Props) {
           hasChallenge={Boolean(challenge)}
         />
       </section>
-
-      {lessonSupport && (
-        <section className="mt-8">
-          <LearningSupport slug={slug} topicTitle={topic.title} support={lessonSupport} />
-        </section>
-      )}
 
       <section className="mt-8 grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <div className="overflow-hidden rounded-[24px] border border-white/10 bg-slate-950/45 shadow-[0_20px_70px_rgba(2,6,23,0.28)] backdrop-blur-xl md:rounded-[30px]">
