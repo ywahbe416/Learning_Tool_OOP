@@ -3,23 +3,23 @@
 @tailwind utilities;
 
 :root {
-  --background: #07111f;
+  --background: #0d1726;
   --foreground: #e7eef8;
-  --surface: #0c1a2d;
-  --surface-2: #10243b;
-  --line: rgba(148, 163, 184, 0.2);
-  --accent: #67e8f9;
-  --accent-warm: #fbbf24;
+  --surface: #132235;
+  --surface-2: #1a2d42;
+  --line: rgba(148, 163, 184, 0.18);
+  --accent: #5dd7e8;
+  --accent-warm: #f0b24a;
 }
 
 :root[data-theme="light"] {
-  --background: #edf6fb;
-  --foreground: #0f172a;
-  --surface: #ffffff;
-  --surface-2: #e6f1f7;
+  --background: #e9f1f6;
+  --foreground: #102033;
+  --surface: #f7fafc;
+  --surface-2: #e4edf4;
   --line: rgba(15, 23, 42, 0.12);
-  --accent: #0891b2;
-  --accent-warm: #d97706;
+  --accent: #0f7895;
+  --accent-warm: #b86a12;
 }
 
 html {
@@ -31,16 +31,16 @@ body {
   color: var(--foreground);
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
   background-image:
-    radial-gradient(circle at top left, rgba(103, 232, 249, 0.14), transparent 26%),
-    radial-gradient(circle at 85% 10%, rgba(251, 191, 36, 0.1), transparent 22%),
-    linear-gradient(180deg, #08111d 0%, #07111f 45%, #091423 100%);
+    radial-gradient(circle at top left, rgba(93, 215, 232, 0.16), transparent 26%),
+    radial-gradient(circle at 85% 10%, rgba(240, 178, 74, 0.1), transparent 22%),
+    linear-gradient(180deg, #111b2a 0%, #132033 46%, #16263b 100%);
 }
 
 :root[data-theme="light"] body {
   background-image:
-    radial-gradient(circle at top left, rgba(8, 145, 178, 0.12), transparent 26%),
-    radial-gradient(circle at 85% 10%, rgba(217, 119, 6, 0.08), transparent 22%),
-    linear-gradient(180deg, #f8fcff 0%, #edf6fb 50%, #e8f3f9 100%);
+    radial-gradient(circle at top left, rgba(15, 120, 149, 0.1), transparent 26%),
+    radial-gradient(circle at 85% 10%, rgba(184, 106, 18, 0.07), transparent 22%),
+    linear-gradient(180deg, #f4f8fb 0%, #e9f1f6 50%, #e3ecf3 100%);
 }
 
 a {
@@ -80,6 +80,33 @@ a {
   animation: pulse-glow 2.4s ease-in-out infinite;
 }
 
+:root[data-theme="dark"] .bg-slate-950,
+:root[data-theme="dark"] .bg-slate-950\/25,
+:root[data-theme="dark"] .bg-slate-950\/30,
+:root[data-theme="dark"] .bg-slate-950\/35,
+:root[data-theme="dark"] .bg-slate-950\/40,
+:root[data-theme="dark"] .bg-slate-950\/45,
+:root[data-theme="dark"] .bg-slate-950\/70,
+:root[data-theme="dark"] .bg-slate-950\/80,
+:root[data-theme="dark"] .bg-slate-950\/90 {
+  background-color: rgba(15, 23, 42, 0.78) !important;
+}
+
+:root[data-theme="dark"] .bg-slate-900,
+:root[data-theme="dark"] .bg-slate-900\/60,
+:root[data-theme="dark"] .bg-slate-900\/70,
+:root[data-theme="dark"] .bg-slate-900\/75,
+:root[data-theme="dark"] .bg-slate-900\/80,
+:root[data-theme="dark"] .bg-slate-900\/90 {
+  background-color: rgba(23, 37, 56, 0.84) !important;
+}
+
+:root[data-theme="dark"] .bg-slate-800,
+:root[data-theme="dark"] .bg-slate-800\/50,
+:root[data-theme="dark"] .bg-slate-800\/80 {
+  background-color: rgba(35, 53, 77, 0.9) !important;
+}
+
 :root[data-theme="light"] .text-slate-50,
 :root[data-theme="light"] .text-slate-100,
 :root[data-theme="light"] .text-slate-200 {
@@ -108,7 +135,7 @@ a {
 :root[data-theme="light"] .bg-slate-950\/70,
 :root[data-theme="light"] .bg-slate-950\/80,
 :root[data-theme="light"] .bg-slate-950\/90 {
-  background-color: rgba(255, 255, 255, 0.88) !important;
+  background-color: rgba(246, 249, 251, 0.94) !important;
 }
 
 :root[data-theme="light"] .bg-slate-900,
@@ -117,13 +144,13 @@ a {
 :root[data-theme="light"] .bg-slate-900\/70,
 :root[data-theme="light"] .bg-slate-900\/75,
 :root[data-theme="light"] .bg-slate-900\/80 {
-  background-color: rgba(240, 249, 255, 0.92) !important;
+  background-color: rgba(233, 240, 246, 0.96) !important;
 }
 
 :root[data-theme="light"] .bg-slate-800,
 :root[data-theme="light"] .bg-slate-800\/50,
 :root[data-theme="light"] .bg-slate-800\/80 {
-  background-color: rgba(226, 238, 247, 0.92) !important;
+  background-color: rgba(221, 232, 240, 0.98) !important;
 }
 
 :root[data-theme="light"] .border-slate-800,
@@ -135,6 +162,79 @@ a {
 
 :root[data-theme="light"] .bg-white\/10 {
   background-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:root[data-theme="light"] .text-cyan-100,
+:root[data-theme="light"] .text-cyan-200,
+:root[data-theme="light"] .text-cyan-300 {
+  color: #0f766e !important;
+}
+
+:root[data-theme="light"] .text-emerald-100,
+:root[data-theme="light"] .text-emerald-200,
+:root[data-theme="light"] .text-emerald-300 {
+  color: #166534 !important;
+}
+
+:root[data-theme="light"] .text-amber-100,
+:root[data-theme="light"] .text-amber-200,
+:root[data-theme="light"] .text-amber-300 {
+  color: #92400e !important;
+}
+
+:root[data-theme="light"] .text-rose-200,
+:root[data-theme="light"] .text-rose-300 {
+  color: #9f1239 !important;
+}
+
+:root[data-theme="light"] .bg-cyan-400\/10,
+:root[data-theme="light"] .bg-cyan-400\/15 {
+  background-color: rgba(15, 120, 149, 0.1) !important;
+}
+
+:root[data-theme="light"] .bg-cyan-950\/25,
+:root[data-theme="light"] .bg-cyan-950\/30 {
+  background-color: rgba(15, 120, 149, 0.1) !important;
+}
+
+:root[data-theme="light"] .bg-emerald-950\/30,
+:root[data-theme="light"] .bg-emerald-950\/35,
+:root[data-theme="light"] .bg-emerald-950\/40 {
+  background-color: rgba(22, 101, 52, 0.09) !important;
+}
+
+:root[data-theme="light"] .bg-amber-950\/20,
+:root[data-theme="light"] .bg-amber-950\/35,
+:root[data-theme="light"] .bg-amber-950\/40 {
+  background-color: rgba(146, 64, 14, 0.1) !important;
+}
+
+:root[data-theme="light"] .bg-rose-950\/30,
+:root[data-theme="light"] .bg-rose-950\/40 {
+  background-color: rgba(159, 18, 57, 0.08) !important;
+}
+
+:root[data-theme="light"] .border-cyan-400,
+:root[data-theme="light"] .border-cyan-500,
+:root[data-theme="light"] .border-cyan-700 {
+  border-color: rgba(15, 120, 149, 0.3) !important;
+}
+
+:root[data-theme="light"] .border-emerald-600,
+:root[data-theme="light"] .border-emerald-700,
+:root[data-theme="light"] .border-emerald-800 {
+  border-color: rgba(22, 101, 52, 0.28) !important;
+}
+
+:root[data-theme="light"] .border-amber-600,
+:root[data-theme="light"] .border-amber-700,
+:root[data-theme="light"] .border-amber-800 {
+  border-color: rgba(146, 64, 14, 0.28) !important;
+}
+
+:root[data-theme="light"] .border-rose-700,
+:root[data-theme="light"] .border-rose-800 {
+  border-color: rgba(159, 18, 57, 0.24) !important;
 }
 
 :root[data-theme="light"] .prose {

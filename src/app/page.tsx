@@ -13,6 +13,7 @@ import { vizSlugs } from "@/lib/visualizations";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import NextRecommendedTopic from "@/components/topic/NextRecommendedTopic";
+import ReviewQueue from "@/components/home/ReviewQueue";
 
 const difficultyColors: Record<TopicMeta["difficulty"], string> = {
   beginner: "border-emerald-700 bg-emerald-950/40 text-emerald-200",
@@ -142,6 +143,10 @@ export default function Home() {
             );
           })}
         </div>
+      </section>
+
+      <section className="mt-10">
+        <ReviewQueue />
       </section>
 
       <section className="mt-10">

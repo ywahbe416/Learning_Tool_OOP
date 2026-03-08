@@ -2,6 +2,7 @@
 
 import {
   TOPIC_PROGRESS_EVENT,
+  ensureTopicReviewSchedule,
   getCompletedStepCount,
   getRequiredStepCount,
   getTopicProgress,
@@ -25,6 +26,10 @@ export default function TopicJourney({
     concept: false,
     lab: false,
     challenge: false,
+    completedAt: null,
+    lastReviewedAt: null,
+    nextReviewAt: null,
+    reviewStage: 0,
   });
 
   useEffect(() => {
@@ -46,12 +51,18 @@ export default function TopicJourney({
   const required = getRequiredStepCount(hasVisualization, hasChallenge);
   const completionPercent = Math.round((completed / required) * 100);
 
+  useEffect(() => {
+    if (completed === required) {
+      ensureTopicReviewSchedule(slug, hasVisualization, hasChallenge);
+    }
+  }, [completed, hasChallenge, hasVisualization, required, slug]);
+
   const steps = [
     {
       id: "concept" as const,
       label: "Read",
       title: "Concept",
-      description: "Work through the explanation and main examples.",
+      description: "Work through the explanation, examples, and concept checks.",
       done: progress.concept,
       action: "Mark Concept Read",
       visible: true,
@@ -85,7 +96,7 @@ export default function TopicJourney({
               Lesson Flow
             </p>
             <p className="mt-2 text-sm text-slate-400">
-              Move through the topic in order: understand the idea, test it visually, then implement it in code.
+              Move through the topic in order: build the idea, test it visually, then implement it in code.
             </p>
           </div>
           <div className="rounded-full border border-white/10 bg-slate-900/80 px-4 py-2 text-sm text-slate-300">

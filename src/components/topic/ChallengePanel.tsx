@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import Editor from "@monaco-editor/react";
 import type { Challenge } from "@/types/challenge";
 import { markChallengeComplete } from "@/lib/progress";
+import type { TopicLearningSupport } from "@/lib/lesson-support";
 
 interface TestResult {
   description: string;
@@ -14,20 +15,27 @@ interface TestResult {
 interface Props {
   challenge: Challenge;
   topicSlug: string;
+  learningSupport: TopicLearningSupport | null;
 }
 
-export default function ChallengePanel({ challenge, topicSlug }: Props) {
+export default function ChallengePanel({
+  challenge,
+  topicSlug,
+  learningSupport,
+}: Props) {
   const [code, setCode] = useState(challenge.starterCode);
   const [results, setResults] = useState<TestResult[] | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
   const [editorTheme, setEditorTheme] = useState<"vs-dark" | "vs">("vs-dark");
+  const [themeMode, setThemeMode] = useState<"dark" | "light">("dark");
+  const [hintDepth, setHintDepth] = useState(0);
 
   useEffect(() => {
     function syncTheme() {
-      const nextTheme =
-        document.documentElement.dataset.theme === "light" ? "vs" : "vs-dark";
-      setEditorTheme(nextTheme);
+      const isLight = document.documentElement.dataset.theme === "light";
+      setThemeMode(isLight ? "light" : "dark");
+      setEditorTheme(isLight ? "vs" : "vs-dark");
     }
 
     syncTheme();
@@ -45,6 +53,7 @@ export default function ChallengePanel({ challenge, topicSlug }: Props) {
     setRunning(true);
     setCompileError(null);
     setResults(null);
+    setHintDepth(0);
 
     try {
       const res = await fetch("/api/run", {
@@ -83,6 +92,33 @@ export default function ChallengePanel({ challenge, topicSlug }: Props) {
 
   const allPassed = results !== null && results.every((r) => r.pass);
   const passCount = results ? results.filter((r) => r.pass).length : 0;
+  const firstFailure = results?.find((result) => !result.pass) ?? null;
+
+  const activeHintTrack = useMemo(() => {
+    if (!learningSupport || !firstFailure) {
+      return null;
+    }
+
+    const failureText = `${firstFailure.description} ${firstFailure.error ?? ""}`.toLowerCase();
+
+    return (
+      learningSupport.challengeHints.find((hint) =>
+        hint.matchText.some((pattern) => failureText.includes(pattern.toLowerCase()))
+      ) ?? learningSupport.challengeHints[0] ?? null
+    );
+  }, [firstFailure, learningSupport]);
+
+  useEffect(() => {
+    setHintDepth(0);
+  }, [compileError, firstFailure?.description]);
+
+  const coachLevels = compileError
+    ? learningSupport?.compileHints ?? null
+    : activeHintTrack?.levels ?? null;
+  const coachTitle = compileError
+    ? "Compile Before Logic"
+    : activeHintTrack?.title ?? null;
+  const isLightTheme = themeMode === "light";
 
   return (
     <section className="relative overflow-hidden rounded-[28px] border border-slate-700 bg-slate-900/90 shadow-[0_24px_80px_rgba(15,23,42,0.45)]">
@@ -192,6 +228,100 @@ export default function ChallengePanel({ challenge, topicSlug }: Props) {
         </div>
       )}
 
+      {(compileError || (firstFailure && coachLevels && coachTitle)) && coachLevels && coachTitle && (
+        <div
+          className="mx-6 mb-4 rounded-[20px] border p-4"
+          style={{
+            borderColor: isLightTheme ? "rgba(180, 83, 9, 0.28)" : undefined,
+            backgroundColor: isLightTheme ? "rgba(255, 247, 237, 0.94)" : undefined,
+          }}
+        >
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p
+                className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-300"
+                style={isLightTheme ? { color: "#9a3412" } : undefined}
+              >
+                Failure Coach
+              </p>
+              <p
+                className="mt-2 text-sm font-medium text-amber-100"
+                style={isLightTheme ? { color: "#7c2d12" } : undefined}
+              >
+                {coachTitle}
+              </p>
+              <p
+                className="mt-1 text-sm text-amber-200/80"
+                style={isLightTheme ? { color: "#b45309" } : undefined}
+              >
+                {compileError
+                  ? "Fix the file so it compiles cleanly, then rerun the tests."
+                  : `Start with the first failing check: ${firstFailure?.description}`}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {coachLevels.map((_, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => setHintDepth((value) => Math.max(value, index + 1))}
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+                    hintDepth >= index + 1
+                      ? "border-amber-500 bg-amber-400 text-slate-950"
+                      : "border-amber-500/40 bg-transparent text-amber-200 hover:border-amber-400"
+                  }`}
+                  style={
+                    isLightTheme
+                      ? hintDepth >= index + 1
+                        ? {
+                            borderColor: "rgba(180, 83, 9, 0.42)",
+                            backgroundColor: "#fbbf24",
+                            color: "#111827",
+                          }
+                        : {
+                            borderColor: "rgba(180, 83, 9, 0.28)",
+                            backgroundColor: "rgba(255, 251, 235, 0.94)",
+                            color: "#92400e",
+                          }
+                      : undefined
+                  }
+                >
+                  Hint {index + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {hintDepth > 0 && (
+            <div className="mt-4 space-y-2">
+              {coachLevels.slice(0, hintDepth).map((hint, index) => (
+                <div
+                  key={hint}
+                  className="rounded-2xl border border-amber-700/40 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-slate-200"
+                  style={
+                    isLightTheme
+                      ? {
+                          borderColor: "rgba(180, 83, 9, 0.22)",
+                          backgroundColor: "rgba(255, 255, 255, 0.82)",
+                          color: "#1f2937",
+                        }
+                      : undefined
+                  }
+                >
+                  <span
+                    className="mr-2 text-xs font-semibold uppercase tracking-[0.16em] text-amber-300"
+                    style={isLightTheme ? { color: "#b45309" } : undefined}
+                  >
+                    Hint {index + 1}
+                  </span>
+                  {hint}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {results && (
         <div className="px-6 pb-6 space-y-2">
           {results.map((r, i) => (
@@ -210,6 +340,17 @@ export default function ChallengePanel({ challenge, topicSlug }: Props) {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {allPassed && learningSupport && (
+        <div className="mx-6 mb-6 rounded-[20px] border border-cyan-700 bg-cyan-950/25 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300">
+            Reflection Prompt
+          </p>
+          <p className="mt-2 text-sm leading-6 text-slate-200">
+            {learningSupport.reflectionPrompt}
+          </p>
         </div>
       )}
     </section>
