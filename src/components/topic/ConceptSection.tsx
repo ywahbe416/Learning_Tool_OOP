@@ -1,4 +1,5 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
 
 interface Props {
   source: string;
@@ -32,7 +33,14 @@ export default function ConceptSection({ source }: Props) {
       prose-a:text-cyan-300
       prose-hr:border-slate-700
     ">
-      <MDXRemote source={source} />
+      <MDXRemote
+        source={source}
+        options={{
+          mdxOptions: {
+            remarkPlugins: [remarkGfm],
+          },
+        }}
+      />
     </div>
   );
 }
